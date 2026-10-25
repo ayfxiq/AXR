@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>نظام إدارة</title>
+  <title>نظام إدارة صيانة الموبايلات والحسابات</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +50,7 @@
       color: #0f172a;
       line-height: 1.5;
       -webkit-text-size-adjust: 100%;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
     /* Critical fallback if Tailwind CDN is slow or blocked */
     .hidden {
@@ -174,6 +175,149 @@
       opacity: 1;
       transform: scaleX(1);
     }
+
+    /* ========================================== */
+    /* DARK MODE OVERRIDES (الوضع الليلي)         */
+    /* ========================================== */
+    body.dark-mode {
+      background-color: #0b1120 !important;
+      color: #f1f5f9 !important;
+    }
+    body.dark-mode header,
+    body.dark-mode aside.desktop-sidebar,
+    body.dark-mode nav.mobile-only-bar {
+      background-color: #111827 !important;
+      border-color: #1e293b !important;
+    }
+    body.dark-mode .bg-white {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
+    }
+    body.dark-mode .bg-slate-50,
+    body.dark-mode .bg-slate-50\/60,
+    body.dark-mode .bg-slate-50\/70,
+    body.dark-mode .bg-slate-100 {
+      background-color: #0f172a !important;
+      border-color: #334155 !important;
+      color: #e2e8f0 !important;
+    }
+    body.dark-mode .text-slate-900,
+    body.dark-mode .text-slate-800,
+    body.dark-mode .text-slate-700 {
+      color: #f1f5f9 !important;
+    }
+    body.dark-mode .text-slate-600,
+    body.dark-mode .text-slate-500,
+    body.dark-mode .text-slate-400 {
+      color: #94a3b8 !important;
+    }
+    body.dark-mode .border-slate-100,
+    body.dark-mode .border-slate-200,
+    body.dark-mode .border-slate-200\/90,
+    body.dark-mode .border-slate-300 {
+      border-color: #334155 !important;
+    }
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background-color: #0f172a !important;
+      border-color: #475569 !important;
+      color: #f8fafc !important;
+    }
+    body.dark-mode input::placeholder {
+      color: #64748b !important;
+    }
+    body.dark-mode .bg-indigo-50,
+    body.dark-mode .bg-indigo-50\/50,
+    body.dark-mode .bg-indigo-50\/60,
+    body.dark-mode .bg-indigo-50\/80 {
+      background-color: rgba(79, 70, 229, 0.16) !important;
+      border-color: rgba(99, 102, 241, 0.35) !important;
+      color: #e0e7ff !important;
+    }
+    body.dark-mode .text-indigo-950,
+    body.dark-mode .text-indigo-900,
+    body.dark-mode .text-indigo-800,
+    body.dark-mode .text-indigo-700,
+    body.dark-mode .text-indigo-600 {
+      color: #a5b4fc !important;
+    }
+    body.dark-mode .bg-emerald-50,
+    body.dark-mode .bg-emerald-50\/70,
+    body.dark-mode .bg-emerald-50\/60 {
+      background-color: rgba(16, 185, 129, 0.14) !important;
+      border-color: rgba(16, 185, 129, 0.35) !important;
+    }
+    body.dark-mode .text-emerald-900,
+    body.dark-mode .text-emerald-800,
+    body.dark-mode .text-emerald-700 {
+      color: #6ee7b7 !important;
+    }
+    body.dark-mode .bg-rose-50,
+    body.dark-mode .bg-rose-50\/70 {
+      background-color: rgba(244, 63, 94, 0.14) !important;
+      border-color: rgba(244, 63, 94, 0.35) !important;
+    }
+    body.dark-mode .text-rose-900,
+    body.dark-mode .text-rose-800,
+    body.dark-mode .text-rose-700 {
+      color: #fda4af !important;
+    }
+    body.dark-mode .bg-amber-50,
+    body.dark-mode .bg-amber-100 {
+      background-color: rgba(245, 158, 11, 0.16) !important;
+      border-color: rgba(245, 158, 11, 0.38) !important;
+      color: #fde68a !important;
+    }
+    body.dark-mode .text-amber-900,
+    body.dark-mode .text-amber-800 {
+      color: #fde68a !important;
+    }
+    body.dark-mode .mobile-nav-btn.active {
+      color: #818cf8 !important;
+    }
+
+    /* ========================================== */
+    /* PRINT / PDF REPORT STYLES                  */
+    /* ========================================== */
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm 15mm;
+      }
+      body, html {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      header,
+      aside,
+      nav,
+      main.main-container,
+      #toastContainer,
+      #customConfirmModal,
+      .no-print {
+        display: none !important;
+      }
+      #pdfReportModal {
+        position: static !important;
+        display: block !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+      #pdfReportModalInner {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+    }
   </style>
 </head>
 <body class="app-shell bg-slate-100 text-slate-800">
@@ -191,27 +335,33 @@
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-1">
-            <span id="mobileProfileName" class="font-bold text-slate-900 text-sm leading-tight truncate max-w-[130px] sm:max-w-[200px]">أيمن</span>
+            <span id="mobileProfileName" class="font-bold text-slate-900 text-sm leading-tight truncate max-w-[115px] sm:max-w-[180px]">أيمن</span>
             <svg width="14" height="14" class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-            </svg>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
           </div>
           <p class="text-[11px] text-slate-500 truncate">إدارة الصيانة والحسابات</p>
         </div>
       </button>
 
-      <!-- Quick Pocket Badge on Mobile Header -->
-      <button type="button" id="mobilePocketQuickBtn" class="bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition rounded-xl px-2.5 py-1.5 text-left flex items-center gap-2 shrink-0">
-        <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-700 flex items-center justify-center shrink-0">
-          <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-          </svg>
-        </div>
-        <div>
-          <span class="block text-[10px] text-emerald-700 font-semibold leading-none">بجيبي الآن</span>
-          <span id="mobileHeaderPocketBalance" class="font-extrabold text-xs sm:text-sm text-emerald-800">0 د.ع</span>
-        </div>
-      </button>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Quick Theme Toggle on Mobile Header -->
+        <button type="button" id="quickThemeToggleBtn" class="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition" title="تبديل الوضع الليلي / النهاري">
+          <span id="quickThemeIcon">🌙</span>
+        </button>
+
+        <!-- Quick Pocket Badge on Mobile Header -->
+        <button type="button" id="mobilePocketQuickBtn" class="bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition rounded-xl px-2.5 py-1.5 text-left flex items-center gap-2 shrink-0">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-700 flex items-center justify-center shrink-0">
+            <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="block text-[10px] text-emerald-700 font-semibold leading-none">بجيبي الآن</span>
+            <span id="mobileHeaderPocketBalance" class="font-extrabold text-xs sm:text-sm text-emerald-800">0 د.ع</span>
+          </div>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -255,11 +405,14 @@
         <span id="sidebarDebtBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold hidden">دين</span>
       </button>
 
-      <button type="button" data-tab="tab-profits" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition">
-        <svg width="20" height="20" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-        </svg>
-        <span>الأرباح والخسائر</span>
+      <button type="button" data-tab="tab-profits" class="nav-btn w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition">
+        <div class="flex items-center gap-3">
+          <svg width="20" height="20" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <span>الأرباح والخسائر</span>
+        </div>
+        <span id="sidebarUnapprovedBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-extrabold hidden"></span>
       </button>
 
       <button type="button" data-tab="tab-pocket" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-100 transition">
@@ -306,9 +459,15 @@
           </h1>
           <p class="text-xs text-slate-500 mt-0.5">سجّل بيانات الموبايل والعطل وقطع الغيار ليتم حساب الربح الصافي تلقائياً</p>
         </div>
-        <div class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm flex items-center gap-2">
-          <span class="text-xs text-slate-500 font-semibold">أجهزة اليوم:</span>
-          <span id="todayDevicesCountBadge" class="text-sm font-extrabold text-indigo-600">0</span>
+        <div class="flex items-center gap-2">
+          <button type="button" id="exportTodayPdfBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <svg width="15" height="15" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span>تصدير كشف اليوم PDF</span>
+          </button>
+          <div class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm flex items-center gap-2">
+            <span class="text-xs text-slate-500 font-semibold">أجهزة اليوم:</span>
+            <span id="todayDevicesCountBadge" class="text-sm font-extrabold text-indigo-600">0</span>
+          </div>
         </div>
       </div>
 
@@ -616,13 +775,22 @@
     <!-- SECTION 3: الأرباح والخسائر (PROFITS/LOSS) -->
     <!-- ========================================== -->
     <section id="tab-profits" class="tab-section space-y-5">
-      <div>
-        <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
-          <span class="w-2 h-6 rounded-full bg-indigo-600 inline-block"></span>
-          الأرباح والخسائر وتحديد حصتي
-        </h1>
-        <p class="text-xs text-slate-500 mt-0.5">اختر اليوم أو الفترة الزمنية، وحدد حصتك من الربح ليتم فرز (ربحي الخاص) و(الربح الباقي لصاحب المحل)</p>
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+            <span class="w-2 h-6 rounded-full bg-indigo-600 inline-block"></span>
+            الأرباح والخسائر وتحديد حصتي
+          </h1>
+          <p class="text-xs text-slate-500 mt-0.5">اختر اليوم أو الفترة الزمنية، وحدد حصتك من الربح ليتم فرز (ربحي الخاص) و(الربح الباقي لصاحب المحل)</p>
+        </div>
+        <button type="button" id="exportProfitsPdfBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+          <svg width="15" height="15" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+          <span>تصدير كشف اليوم / الفترة PDF</span>
+        </button>
       </div>
+
+      <!-- تنبيه الأيام التي لم تُعتمد حصتها بعد -->
+      <div id="unapprovedDaysAlertProfits" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 space-y-2.5"></div>
 
       <!-- اختيار اليوم أو الفترة -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 space-y-3.5">
@@ -773,6 +941,9 @@
         </button>
       </div>
 
+      <!-- تنبيه في قسم جيبي للأيام غير المعتمدة بعد -->
+      <div id="unapprovedDaysAlertPocket" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 space-y-2.5"></div>
+
       <!-- البطاقات الثلاث الرئيسية في قسم جيبي -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         <!-- 1. الفلوس الكلية (بجيبي حالياً) -->
@@ -871,7 +1042,23 @@
           <span class="w-2 h-6 rounded-full bg-indigo-600 inline-block"></span>
           الملف الشخصي والإعدادات والنسخ الاحتياطي
         </h1>
-        <p class="text-xs text-slate-500 mt-0.5">تعديل اسمك وصورتك الشخصية، وحفظ نسخة احتياطية كملف أو استرجاعها بأي وقت</p>
+        <p class="text-xs text-slate-500 mt-0.5">تعديل اسمك وصورتك الشخصية، وتغيير الوضع (الليلي / النهاري)، وحفظ أو استرجاع نسخة احتياطية</p>
+      </div>
+
+      <!-- ميزة الوضع الليلي والنهاري -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-slate-900">مظهر الموقع (الوضع النهاري / الليلي)</h2>
+          <p class="text-xs text-slate-500 mt-0.5">اختر المظهر المريح لعينك أثناء العمل وسيتم حفظه تلقائياً</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5 sm:w-72 shrink-0">
+          <button type="button" id="themeLightBtn" class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-indigo-600 text-white border-indigo-600 shadow-sm">
+            <span>☀️ الوضع النهاري</span>
+          </button>
+          <button type="button" id="themeDarkBtn" class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200">
+            <span>🌙 الوضع الليلي</span>
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -971,6 +1158,7 @@
 
       <button type="button" data-tab="tab-profits" class="mobile-nav-btn relative flex flex-col items-center justify-center py-1.5 px-1 text-slate-500 transition">
         <span class="nav-indicator absolute top-0 w-7 h-1 rounded-b-full bg-indigo-600 opacity-0 scale-x-50 transition-all"></span>
+        <span id="mobileUnapprovedDot" class="hidden absolute top-1 left-3 w-2 h-2 rounded-full bg-amber-500"></span>
         <svg width="20" height="20" class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
@@ -996,6 +1184,33 @@
     </div>
   </nav>
 
+  <!-- Printable PDF Report Preview Modal -->
+  <div id="pdfReportModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div id="pdfReportModalInner" class="bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-200 max-w-4xl w-full p-4 sm:p-6 space-y-4 my-auto max-h-[92vh] overflow-y-auto">
+      <div class="no-print flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-slate-900">معاينة كشف الصيانة (جاهز للطباعة أو الحفظ PDF)</h3>
+          <p class="text-xs text-slate-500">اضغط "طباعة / حفظ كملف PDF" واختر (Save as PDF / حفظ بتنسيق PDF) من نافذة الطباعة</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="printReportNowBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span>طباعة / حفظ كملف PDF</span>
+          </button>
+          <button type="button" id="downloadReportHtmlBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition">
+            تنزيل ملف الكشف
+          </button>
+          <button type="button" id="closePdfReportModalBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition">
+            إغلاق
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Report Content -->
+      <div id="pdfReportContentArea" class="space-y-4 text-right" dir="rtl"></div>
+    </div>
+  </div>
+
   <!-- Custom Confirmation Modal (Sandbox-Safe, replaces window.confirm) -->
   <div id="customConfirmModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-5 space-y-4">
@@ -1015,6 +1230,7 @@
     (function () {
       'use strict';
 
+      // IMPORTANT: Keep exact same STORAGE_KEY so existing user data is never lost on update
       const STORAGE_KEY = 'aymen_mobile_repair_app_v1';
 
       function getTodayISO() {
@@ -1026,6 +1242,7 @@
       }
 
       const defaultState = {
+        theme: 'light',
         profile: {
           name: 'أيمن',
           avatar: ''
@@ -1034,20 +1251,22 @@
           { id: 'w_default_1', name: 'مركز الجملة الرئيسي', phone: '', createdAt: getTodayISO() }
         ],
         devices: [],
-        debtPayments: [], // { id, wholesalerId, amount, note, date }
-        dailyShares: {},  // { 'YYYY-MM-DD': { myShare: number, ratio: number|null, updatedAt: string } }
-        expenses: [],     // { id, title, amount, date }
-        deposits: []      // { id, reason, amount, date }
+        debtPayments: [],
+        dailyShares: {},
+        expenses: [],
+        deposits: []
       };
 
       let state = loadState();
       let currentNeedsParts = false;
       let selectedPartsSet = new Set();
-      let currentPayType = 'cash'; // 'cash' | 'debt'
+      let currentPayType = 'cash';
       let activeWholesalerDetailId = null;
-      let profitFilterMode = 'single'; // 'single' | 'range'
-      let lastSelectedRatio = null; // tracks if user clicked a ratio preset button
+      let profitFilterMode = 'single';
+      let lastSelectedRatio = null;
       let confirmCallback = null;
+      let lastGeneratedReportHtml = '';
+      let lastGeneratedReportTitle = '';
 
       function loadState() {
         try {
@@ -1055,6 +1274,7 @@
           if (!raw) return JSON.parse(JSON.stringify(defaultState));
           const parsed = JSON.parse(raw);
           return {
+            theme: parsed.theme === 'dark' ? 'dark' : 'light',
             profile: parsed.profile || { name: 'أيمن', avatar: '' },
             wholesalers: Array.isArray(parsed.wholesalers) ? parsed.wholesalers : [],
             devices: Array.isArray(parsed.devices) ? parsed.devices : [],
@@ -1121,6 +1341,29 @@
           .replace(/'/g, '&#039;');
       }
 
+      // ==========================================
+      // THEME MANAGEMENT (LIGHT / DARK MODE)
+      // ==========================================
+      function applyTheme(themeName) {
+        state.theme = themeName === 'dark' ? 'dark' : 'light';
+        const isDark = state.theme === 'dark';
+        document.body.classList.toggle('dark-mode', isDark);
+
+        const lightBtn = document.getElementById('themeLightBtn');
+        const darkBtn = document.getElementById('themeDarkBtn');
+        const quickIcon = document.getElementById('quickThemeIcon');
+
+        if (isDark) {
+          darkBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-indigo-600 text-white border-indigo-600 shadow-sm';
+          lightBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200';
+          if (quickIcon) quickIcon.textContent = '☀️';
+        } else {
+          lightBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-indigo-600 text-white border-indigo-600 shadow-sm';
+          darkBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200';
+          if (quickIcon) quickIcon.textContent = '🌙';
+        }
+      }
+
       // Sync dynamic daily shares when devices change on a day that was saved with a ratio
       function syncDailyShareForDate(dateStr) {
         const entry = state.dailyShares[dateStr];
@@ -1131,6 +1374,228 @@
             .reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
           entry.myShare = Math.round(dayNet * entry.ratio);
         }
+      }
+
+      // ==========================================
+      // FEATURE 1: UNAPPROVED DAYS ALERT
+      // ==========================================
+      function getUnapprovedDatesList() {
+        const byDate = {};
+        state.devices.forEach(d => {
+          if (!d.date) return;
+          if (!byDate[d.date]) {
+            byDate[d.date] = { date: d.date, count: 0, netProfit: 0 };
+          }
+          byDate[d.date].count += 1;
+          byDate[d.date].netProfit += Number(d.netProfit) || 0;
+        });
+
+        return Object.values(byDate)
+          .filter(item => state.dailyShares[item.date] === undefined)
+          .sort((a, b) => b.date.localeCompare(a.date));
+      }
+
+      function renderUnapprovedAlerts() {
+        const unapproved = getUnapprovedDatesList();
+        const profitsAlertEl = document.getElementById('unapprovedDaysAlertProfits');
+        const pocketAlertEl = document.getElementById('unapprovedDaysAlertPocket');
+        const sidebarBadge = document.getElementById('sidebarUnapprovedBadge');
+        const mobileDot = document.getElementById('mobileUnapprovedDot');
+
+        if (unapproved.length === 0) {
+          profitsAlertEl.classList.add('hidden');
+          pocketAlertEl.classList.add('hidden');
+          sidebarBadge.classList.add('hidden');
+          mobileDot.classList.add('hidden');
+          return;
+        }
+
+        sidebarBadge.textContent = `${unapproved.length} يوم غير معتمد`;
+        sidebarBadge.classList.remove('hidden');
+        mobileDot.classList.remove('hidden');
+
+        const rowsHtml = unapproved.map(item => `
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-white/90 border border-amber-200 rounded-xl px-3 py-2">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-extrabold text-slate-900">يوم ${escapeHtml(item.date)}</span>
+              <span class="text-slate-500">(${item.count} أجهزة)</span>
+              <span class="font-bold text-indigo-700">صافي الربح الكلي: ${formatCurrency(item.netProfit)}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" data-quick-approve-half="${escapeHtml(item.date)}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-2.5 py-1 rounded-lg transition">
+                اعتماد النصف (50%) فوراً
+              </button>
+              <button type="button" data-jump-approve-date="${escapeHtml(item.date)}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] px-2.5 py-1 rounded-lg transition">
+                تحديد النسبة يدوياً
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        const bannerContent = `
+          <div class="flex items-start gap-2.5">
+            <svg width="20" height="20" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div class="flex-1 space-y-2">
+              <div>
+                <h4 class="text-xs sm:text-sm font-extrabold text-amber-900">تنبيه: لديك أيام فيها أجهزة مصلحة لم تعتمد حصتك من ربحها بعد!</h4>
+                <p class="text-[11px] text-amber-800">اعتمد حصتك لهذه الأيام ليتم إضافتها تلقائياً إلى رصيد (جيبي):</p>
+              </div>
+              <div class="space-y-1.5">${rowsHtml}</div>
+            </div>
+          </div>
+        `;
+
+        profitsAlertEl.innerHTML = bannerContent;
+        pocketAlertEl.innerHTML = bannerContent;
+        profitsAlertEl.classList.remove('hidden');
+        pocketAlertEl.classList.remove('hidden');
+      }
+
+      // ==========================================
+      // FEATURE 2: BUILT-IN PDF / PRINT REPORT
+      // ==========================================
+      function openPdfReportModal(devicesList, reportTitleLabel) {
+        const userName = (state.profile && state.profile.name) ? state.profile.name : 'أيمن';
+        let totalRev = 0;
+        let totalParts = 0;
+        let totalNet = 0;
+        const byWholesaler = {};
+
+        devicesList.forEach(d => {
+          const rev = Number(d.repairPrice) || 0;
+          const cost = d.needsParts ? (Number(d.partCost) || 0) : 0;
+          const net = Number(d.netProfit) || 0;
+          totalRev += rev;
+          totalParts += cost;
+          totalNet += net;
+
+          if (d.needsParts && d.wholesalerId) {
+            const wObj = state.wholesalers.find(w => w.id === d.wholesalerId);
+            const wName = wObj ? wObj.name : 'مركز جملة';
+            if (!byWholesaler[wName]) {
+              byWholesaler[wName] = { name: wName, count: 0, cashTotal: 0, debtTotal: 0, items: [] };
+            }
+            byWholesaler[wName].count += 1;
+            if (d.payType === 'debt' && !d.debtSettled) {
+              byWholesaler[wName].debtTotal += cost;
+            } else {
+              byWholesaler[wName].cashTotal += cost;
+            }
+            byWholesaler[wName].items.push(`${d.partName} ${d.model} (${cost.toLocaleString('en-US')})`);
+          }
+        });
+
+        const deviceRows = devicesList.length === 0
+          ? `<tr><td colspan="9" style="text-align:center;padding:16px;color:#64748b;">لا توجد أجهزة مسجلة في هذه الفترة</td></tr>`
+          : devicesList.map((d, idx) => {
+              const wObj = state.wholesalers.find(w => w.id === d.wholesalerId);
+              const wName = d.needsParts ? (wObj ? wObj.name : '—') : '—';
+              const partLabel = d.needsParts ? d.partName : 'بدون قطعة';
+              const payLabel = !d.needsParts
+                ? '—'
+                : (d.payType === 'cash' ? 'نقد' : (d.debtSettled ? 'دين مسدد' : 'بالدين'));
+              return `
+                <tr>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${idx + 1}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${escapeHtml(d.model)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(d.fault)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(partLabel)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(wName)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(payLabel)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${formatCurrency(d.needsParts ? d.partCost : 0)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${formatCurrency(d.repairPrice)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:800;color:#047857;">${formatCurrency(d.netProfit)}</td>
+                </tr>
+              `;
+            }).join('');
+
+        const wholesalersArr = Object.values(byWholesaler);
+        const wholesalerRows = wholesalersArr.length === 0
+          ? `<tr><td colspan="5" style="text-align:center;padding:12px;color:#64748b;">لا توجد مشتريات قطع غيار في هذه الفترة</td></tr>`
+          : wholesalersArr.map(w => `
+              <tr>
+                <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${escapeHtml(w.name)}</td>
+                <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${w.count} قطعة</td>
+                <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-size:12px;">${escapeHtml(w.items.join(' + '))}</td>
+                <td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#047857;font-weight:700;">${formatCurrency(w.cashTotal)}</td>
+                <td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#be123c;font-weight:700;">${formatCurrency(w.debtTotal)}</td>
+              </tr>
+            `).join('');
+
+        const halfShare = Math.round(totalNet * 0.5);
+        const thirdShare = Math.round(totalNet / 3);
+        const quarterShare = Math.round(totalNet * 0.25);
+
+        const reportHtml = `
+          <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;background:#ffffff;">
+            <div style="background:#1e3a8a;color:#ffffff;padding:16px 20px;border-radius:12px;margin-bottom:16px;">
+              <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير صيانة الأجهزة — ${escapeHtml(reportTitleLabel)}</h2>
+              <p style="margin:0;font-size:13px;color:#e2e8f0;">الفني المسؤول: ${escapeHtml(userName)} &nbsp;|&nbsp; عدد الأجهزة: ${devicesList.length} أجهزة &nbsp;|&nbsp; صافي الربح الكلي: ${formatCurrency(totalNet)}</p>
+            </div>
+
+            <h3 style="color:#1e3a8a;font-size:15px;font-weight:800;margin:14px 0 8px 0;">1. جدول الأجهزة المصلحة وتفاصيل الأرباح</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:right;margin-bottom:16px;">
+              <thead>
+                <tr style="border-bottom:2px solid #1e3a8a;color:#1e3a8a;">
+                  <th style="padding:8px;">#</th>
+                  <th style="padding:8px;">نوع الموبايل</th>
+                  <th style="padding:8px;">العطل</th>
+                  <th style="padding:8px;">القطعة</th>
+                  <th style="padding:8px;">مركز الجملة</th>
+                  <th style="padding:8px;">الدفع</th>
+                  <th style="padding:8px;">سعر القطعة</th>
+                  <th style="padding:8px;">سعر التصليح</th>
+                  <th style="padding:8px;">الربح الصافي</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${deviceRows}
+                <tr style="border-top:2px solid #1e3a8a;border-bottom:2px solid #1e3a8a;font-weight:800;color:#1e3a8a;background:#f8fafc;">
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">المجموع (${devicesList.length} أجهزة)</td>
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">${formatCurrency(totalParts)}</td>
+                  <td style="padding:8px;">${formatCurrency(totalRev)}</td>
+                  <td style="padding:8px;">${formatCurrency(totalNet)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3 style="color:#1e3a8a;font-size:15px;font-weight:800;margin:16px 0 8px 0;">2. ملخص مشتريات قطع الغيار من مراكز الجملة</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:right;margin-bottom:16px;">
+              <thead>
+                <tr style="border-bottom:2px solid #1e3a8a;color:#1e3a8a;">
+                  <th style="padding:8px;">مركز الجملة</th>
+                  <th style="padding:8px;">عدد القطع</th>
+                  <th style="padding:8px;">تفاصيل القطع والأجهزة</th>
+                  <th style="padding:8px;">المدفوع (نقد/مسدد)</th>
+                  <th style="padding:8px;">الدين المتبقي</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${wholesalerRows}
+              </tbody>
+            </table>
+
+            <div style="border-top:1px solid #cbd5e1;padding-top:12px;font-size:13px;line-height:1.8;">
+              <strong style="color:#1e3a8a;display:block;margin-bottom:4px;">3. خلاصة الحساب وتوزيع الحصص لصافي الربح (${formatCurrency(totalNet)}):</strong>
+              <div>• <strong>إجمالي دخل التصليح:</strong> ${formatCurrency(totalRev)} &nbsp;|&nbsp; <strong>تكلفة القطع:</strong> ${formatCurrency(totalParts)} &nbsp;|&nbsp; <strong>صافي الربح:</strong> ${formatCurrency(totalNet)}</div>
+              <div>• <strong>حصة النصف (50%):</strong> ربحي الخاص = <strong>${formatCurrency(halfShare)}</strong> &nbsp;|&nbsp; الباقي للمحل = ${formatCurrency(totalNet - halfShare)}</div>
+              <div>• <strong>حصة الثلث (33.3%):</strong> ربحي الخاص = <strong>${formatCurrency(thirdShare)}</strong> &nbsp;|&nbsp; الباقي للمحل = ${formatCurrency(totalNet - thirdShare)}</div>
+              <div>• <strong>حصة الربع (25%):</strong> ربحي الخاص = <strong>${formatCurrency(quarterShare)}</strong> &nbsp;|&nbsp; الباقي للمحل = ${formatCurrency(totalNet - quarterShare)}</div>
+            </div>
+          </div>
+        `;
+
+        lastGeneratedReportHtml = reportHtml;
+        lastGeneratedReportTitle = reportTitleLabel;
+        document.getElementById('pdfReportContentArea').innerHTML = reportHtml;
+        document.getElementById('pdfReportModal').classList.remove('hidden');
       }
 
       // ==========================================
@@ -1634,7 +2099,6 @@
               ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
               : 'bg-indigo-50 text-indigo-800 border-indigo-300';
 
-            // Quick toggle button alongside the dropdown so user can either select from dropdown OR tap button
             let quickToggleBtn = '';
             if (currentStatusVal === 'debt_unpaid') {
               quickToggleBtn = `<button type="button" data-settle-item="${p.id}" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-xl transition shrink-0">تحويل إلى: تم التسديد ✓</button>`;
@@ -1933,7 +2397,9 @@
       // MASTER RENDER
       // ==========================================
       function renderAll() {
+        applyTheme(state.theme);
         renderProfile();
+        renderUnapprovedAlerts();
         renderDevicesList();
         renderWholesalersSection();
         renderProfitsSection();
@@ -1962,6 +2428,106 @@
         document.getElementById('mobileProfileBtn').addEventListener('click', () => switchTab('tab-settings'));
         document.getElementById('desktopProfileCard').addEventListener('click', () => switchTab('tab-settings'));
         document.getElementById('mobilePocketQuickBtn').addEventListener('click', () => switchTab('tab-pocket'));
+
+        // Theme buttons (Light / Dark Mode)
+        document.getElementById('themeLightBtn').addEventListener('click', () => {
+          applyTheme('light');
+          saveState();
+          showToast('تم تفعيل الوضع النهاري ☀️');
+        });
+        document.getElementById('themeDarkBtn').addEventListener('click', () => {
+          applyTheme('dark');
+          saveState();
+          showToast('تم تفعيل الوضع الليلي 🌙');
+        });
+        document.getElementById('quickThemeToggleBtn').addEventListener('click', () => {
+          const next = state.theme === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+          saveState();
+          showToast(next === 'dark' ? 'تم تفعيل الوضع الليلي 🌙' : 'تم تفعيل الوضع النهاري ☀️');
+        });
+
+        // Unapproved days alert delegation (in both Profits and Pocket sections)
+        ['unapprovedDaysAlertProfits', 'unapprovedDaysAlertPocket'].forEach(containerId => {
+          document.getElementById(containerId).addEventListener('click', (e) => {
+            const quickHalfBtn = e.target.closest('[data-quick-approve-half]');
+            if (quickHalfBtn) {
+              const dStr = quickHalfBtn.getAttribute('data-quick-approve-half');
+              const dayNet = state.devices
+                .filter(d => d.date === dStr)
+                .reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+              const myShare = Math.round(dayNet * 0.5);
+              state.dailyShares[dStr] = {
+                myShare,
+                ratio: 0.5,
+                updatedAt: new Date().toISOString()
+              };
+              saveState();
+              renderAll();
+              showToast(`تم اعتماد النصف (${formatCurrency(myShare)}) ليوم ${dStr} وإضافته إلى جيبي!`);
+              return;
+            }
+
+            const jumpBtn = e.target.closest('[data-jump-approve-date]');
+            if (jumpBtn) {
+              const dStr = jumpBtn.getAttribute('data-jump-approve-date');
+              profitFilterMode = 'single';
+              document.getElementById('profitFilterSingleDayBtn').className = 'py-2 px-3.5 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 text-white shadow-sm transition';
+              document.getElementById('profitFilterRangeBtn').className = 'py-2 px-3.5 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+              document.getElementById('singleDayPickerWrap').classList.remove('hidden');
+              document.getElementById('rangeDatePickerWrap').classList.add('hidden');
+              document.getElementById('profitSingleDate').value = dStr;
+              switchTab('tab-profits');
+            }
+          });
+        });
+
+        // Built-in PDF / Print Report Modal Events
+        document.getElementById('exportTodayPdfBtn').addEventListener('click', () => {
+          const filterMode = document.getElementById('devicesFilterMode').value;
+          const todayStr = getTodayISO();
+          if (filterMode === 'today') {
+            const list = state.devices.filter(d => d.date === todayStr);
+            openPdfReportModal(list, `يوم ${todayStr}`);
+          } else {
+            openPdfReportModal(state.devices.slice(), 'جميع الأجهزة المسجلة');
+          }
+        });
+
+        document.getElementById('exportProfitsPdfBtn').addEventListener('click', () => {
+          const list = getFilteredDevicesForProfits();
+          if (profitFilterMode === 'single') {
+            const dStr = document.getElementById('profitSingleDate').value || getTodayISO();
+            openPdfReportModal(list, `يوم ${dStr}`);
+          } else {
+            const s = document.getElementById('profitStartDate').value || '';
+            const e = document.getElementById('profitEndDate').value || '';
+            openPdfReportModal(list, `الفترة من ${s} إلى ${e}`);
+          }
+        });
+
+        document.getElementById('printReportNowBtn').addEventListener('click', () => {
+          window.print();
+        });
+
+        document.getElementById('downloadReportHtmlBtn').addEventListener('click', () => {
+          if (!lastGeneratedReportHtml) return;
+          const fullDoc = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير صيانة - ${escapeHtml(lastGeneratedReportTitle)}</title><style>@page{size:A4;margin:14mm;}body{font-family:'Cairo','Tajawal',sans-serif;margin:20px;background:#fff;color:#0f172a;}</style></head><body onload="window.print()">${lastGeneratedReportHtml}</body></html>`;
+          const blob = new Blob([fullDoc], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `تقرير-صيانة-${getTodayISO()}.html`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+          showToast('تم تنزيل ملف التقرير الجاهز للطباعة');
+        });
+
+        document.getElementById('closePdfReportModalBtn').addEventListener('click', () => {
+          document.getElementById('pdfReportModal').classList.add('hidden');
+        });
 
         // Modal confirmation events
         document.getElementById('confirmModalCancelBtn').addEventListener('click', closeConfirmModal);
@@ -2400,7 +2966,7 @@
         });
 
         document.getElementById('myShareAmountInput').addEventListener('input', () => {
-          lastSelectedRatio = null; // manual amount typed
+          lastSelectedRatio = null;
           updateShareSplitPreview();
         });
 
@@ -2638,6 +3204,7 @@
                 throw new Error('Invalid format');
               }
               state = {
+                theme: incoming.theme === 'dark' ? 'dark' : state.theme,
                 profile: incoming.profile || { name: 'أيمن', avatar: '' },
                 wholesalers: Array.isArray(incoming.wholesalers) ? incoming.wholesalers : [],
                 devices: Array.isArray(incoming.devices) ? incoming.devices : [],
@@ -2664,8 +3231,10 @@
             'هل أنت متأكد من مسح كافة الأجهزة ومراكز الجملة والأرباح والمصاريف؟ يُنصح بحفظ نسخة احتياطية أولاً.',
             () => {
               const currentProfile = { ...state.profile };
+              const currentTheme = state.theme;
               state = JSON.parse(JSON.stringify(defaultState));
               state.profile = currentProfile;
+              state.theme = currentTheme;
               activeWholesalerDetailId = null;
               saveState();
               renderAll();
@@ -2682,4 +3251,3 @@
   </script>
 </body>
 </html>
-```
