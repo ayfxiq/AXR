@@ -852,14 +852,45 @@
         <div class="flex flex-wrap items-center justify-between gap-2.5">
           <div>
             <h2 class="text-sm sm:text-base font-extrabold text-slate-900">سجل الأجهزة المصلحة</h2>
-            <p class="text-xs text-slate-500">يمكنك تعديل أي جهاز أو تغيير حالة تسديد قطعته (تم التسديد / لم يتم التسديد) مباشرة</p>
+            <p class="text-xs text-slate-500">اختر عرض أجهزة اليوم أو يوم محدد أو فترة من/إلى لمراجعة الأجهزة وتعديلها</p>
           </div>
-          <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <select id="devicesFilterMode" class="rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-indigo-600">
               <option value="today">أجهزة اليوم فقط</option>
+              <option value="single">يوم محدد (اختيار تاريخ)</option>
+              <option value="range">فترة محددة (من .. إلى ..)</option>
               <option value="all">كل الأجهزة المسجلة</option>
             </select>
             <input type="text" id="devicesSearchInput" placeholder="بحث بالموبايل أو العطل..." class="flex-1 sm:w-48 rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-indigo-600" />
+          </div>
+        </div>
+
+        <!-- خيارات اختيار اليوم المحدد أو الفترة الزمنية في سجل الأجهزة -->
+        <div id="devicesSingleDateWrap" class="hidden flex flex-wrap items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <label for="devicesFilterSingleDate" class="text-xs font-bold text-slate-700">اختر تاريخ اليوم:</label>
+          <input type="date" id="devicesFilterSingleDate" class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-600" />
+          <button type="button" id="devicesFilterTodayQuickBtn" class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl transition">اليوم الحالي</button>
+        </div>
+
+        <div id="devicesRangeDateWrap" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div class="flex items-center gap-2">
+            <label for="devicesFilterStartDate" class="text-xs font-bold text-slate-700 shrink-0">من تاريخ:</label>
+            <input type="date" id="devicesFilterStartDate" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-600" />
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="devicesFilterEndDate" class="text-xs font-bold text-slate-700 shrink-0">إلى تاريخ:</label>
+            <input type="date" id="devicesFilterEndDate" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-900 outline-none focus:border-indigo-600" />
+          </div>
+        </div>
+
+        <!-- شريط ملخص سريع للأجهزة المعروضة حسب الفلتر -->
+        <div id="devicesFilterSummaryBar" class="flex flex-wrap items-center justify-between gap-2 bg-indigo-50/60 border border-indigo-100 rounded-xl px-3.5 py-2 text-xs">
+          <div class="flex flex-wrap items-center gap-3">
+            <span class="font-bold text-slate-700">العدد المعروض: <strong id="filteredDevicesCountText" class="text-indigo-700">0 أجهزة</strong></span>
+            <span class="text-slate-300">|</span>
+            <span class="font-bold text-slate-700">مجموع التصليح: <strong id="filteredDevicesRevenueText" class="money-blur-target text-slate-900">0 د.ع</strong></span>
+            <span class="text-slate-300">|</span>
+            <span class="font-bold text-slate-700">صافي ربح الأجهزة: <strong id="filteredDevicesNetText" class="money-blur-target text-emerald-700">0 د.ع</strong></span>
           </div>
         </div>
 
@@ -993,12 +1024,18 @@
             <span class="w-2 h-6 rounded-full bg-indigo-600 inline-block"></span>
             الأرباح والخسائر وتحديد حصتي
           </h1>
-          <p class="text-xs text-slate-500 mt-0.5">اختر اليوم أو الفترة الزمنية، وحدد حصتك من الربح ليتم فرز (ربحي الخاص) و(الربح الباقي لصاحب المحل)</p>
+          <p class="text-xs text-slate-500 mt-0.5">اختر اليوم أو الفترة الزمنية، وحدد حصتك من الربح أو حمّل تقرير PDF للمحل أو لأرباحك الخاصة</p>
         </div>
-        <button type="button" id="exportProfitsPdfBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
-          <svg width="15" height="15" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-          <span>تصدير كشف اليوم / الفترة PDF</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="exportProfitsPdfBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <svg width="15" height="15" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span>تصدير كشف اليوم / الفترة PDF</span>
+          </button>
+          <button type="button" id="exportMyPersonalProfitsPdfBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <svg width="15" height="15" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>تصدير PDF لأرباحي الخاصة</span>
+          </button>
+        </div>
       </div>
 
       <!-- تنبيه الأيام التي لم تُعتمد حصتها بعد -->
@@ -1045,7 +1082,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm">
           <span class="text-xs font-bold text-slate-500 block">تكلفة قطع الغيار المشتراة</span>
           <span id="profitTotalPartsCost" class="money-blur-target text-lg sm:text-xl font-extrabold text-rose-600 mt-1 block">0 د.ع</span>
-          <span class="text-[11px] text-slate-400 mt-0.5 block">تُخصم تلقائياً من الدخل</span>
+          <span id="profitShopExpensesNote" class="text-[11px] text-slate-400 mt-0.5 block">تُخصم تلقائياً من الدخل</span>
         </div>
         <div class="bg-white rounded-2xl border-2 border-indigo-200 p-3.5 shadow-sm">
           <span class="text-xs font-bold text-indigo-700 block">صافي الربح الكلي (قبل التقسيم)</span>
@@ -1143,9 +1180,9 @@
         <div>
           <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
             <span class="w-2 h-6 rounded-full bg-emerald-600 inline-block"></span>
-            جيبي (المحفظة الشخصية والمصاريف)
+            جيبي (المحفظة الشخصية والمصاريف الخاصة)
           </h1>
-          <p class="text-xs text-slate-500 mt-0.5">متابعة دقيقة للفلوس الكلية بجيبك، أرباحك الصافية، ومصاريفك اليومية</p>
+          <p class="text-xs text-slate-500 mt-0.5">متابعة دقيقة للفلوس الكلية بجيبك، مع قسم فرعي للمصاريف الخاصة وتحديد خصمها من جيبك أو من أرباح المحل</p>
         </div>
         <button type="button" id="toggleExtraDepositBtn" class="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-2 rounded-xl transition flex items-center gap-1.5">
           <svg width="15" height="15" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -1165,7 +1202,7 @@
             <svg width="22" height="22" class="w-5 h-5 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
           </div>
           <div id="pocketTotalCashDisplay" class="money-blur-target text-2xl sm:text-3xl font-extrabold mt-1.5">0 د.ع</div>
-          <p class="text-[11px] text-emerald-100 mt-1">الصافي الفعلي بعد جمع ربحي وخصم المصاريف</p>
+          <p class="text-[11px] text-emerald-100 mt-1">الصافي الفعلي بعد جمع ربحي وخصم مصاريف جيبي</p>
         </div>
 
         <!-- 2. ربحي (مأخوذ من ربحي الخاص في قسم الأرباح) -->
@@ -1181,7 +1218,7 @@
         <!-- 3. إجمالي المصاريف -->
         <div class="bg-white rounded-2xl border-2 border-rose-100 p-4 shadow-sm flex flex-col justify-between">
           <div class="flex items-center justify-between">
-            <span class="text-xs sm:text-sm font-extrabold text-slate-700">إجمالي المصاريف</span>
+            <span class="text-xs sm:text-sm font-extrabold text-slate-700">إجمالي مصاريف جيبي</span>
             <span class="text-[11px] font-bold bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full">مخصوم من جيبي</span>
           </div>
           <div id="pocketTotalExpensesDisplay" class="money-blur-target text-xl sm:text-2xl font-extrabold text-rose-600 my-1">0 د.ع</div>
@@ -1202,35 +1239,55 @@
         </div>
       </form>
 
-      <!-- خانة المصاريف: صرف جديد -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5 space-y-3.5">
-        <div class="flex items-center justify-between">
+      <!-- القسم الفرعي: مصاريف خاصة (مع اختيار الخصم من أرباحي بجيبي أو من أرباح المحل) -->
+      <div class="bg-white rounded-2xl shadow-sm border-2 border-rose-200/80 p-4 sm:p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
           <div>
-            <h2 id="expenseFormHeading" class="text-sm sm:text-base font-extrabold text-slate-900">تسجيل صرف جديد (المصاريف)</h2>
-            <p class="text-xs text-slate-500">اكتب شنو صرفت والمبلغ واضغط حفظ ليتم خصمه من الفلوس الكلية بجيبك</p>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-lg bg-rose-100 text-rose-800 font-extrabold text-[11px]">قسم فرعي</span>
+              <h2 id="expenseFormHeading" class="text-sm sm:text-base font-extrabold text-slate-900">مصاريف خاصة (تسجيل صرف جديد)</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">اكتب شنو صرفت وحدد هل تنخصم من أرباحك الموجودة بجيبك لو من أرباح المحل الكلية قبل التقسيم</p>
           </div>
           <button type="button" id="cancelEditExpenseBtn" class="hidden text-xs font-bold text-rose-600 hover:underline">إلغاء التعديل</button>
         </div>
 
-        <form id="newExpenseForm" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
+        <form id="newExpenseForm" class="space-y-3.5">
           <input type="hidden" id="editingExpenseId" value="" />
-          <div class="sm:col-span-5">
-            <label for="expenseTitleInput" class="block text-xs font-bold text-slate-700 mb-1">شنو صرفت؟ (التفاصيل) *</label>
-            <input type="text" id="expenseTitleInput" required placeholder="مثال: غداء، بنزين، كارت شحن، مسواك..." class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-3 py-2 text-slate-900 focus:bg-white focus:border-rose-500 outline-none" />
+
+          <!-- اختيار جهة الخصم: من أرباحي بجيبي أم من أرباح المحل -->
+          <div>
+            <label class="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5">من أين يُخصم هذا المصرف؟ <span class="text-rose-500">*</span></label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button type="button" id="deductFromPocketBtn" class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-rose-600 text-white border-rose-600 shadow-sm">
+                <span>👛 خصم من أرباحي (الموجودة بجيبي)</span>
+              </button>
+              <button type="button" id="deductFromShopBtn" class="py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-slate-50 text-slate-700 border-slate-300 hover:bg-amber-50">
+                <span>🏪 خصم من أرباح المحل (قبل تقسيم الحصة)</span>
+              </button>
+            </div>
+            <p id="expenseDeductSourceHint" class="text-[11px] text-rose-700 font-semibold mt-1">سيتم خصم هذا المبلغ من الفلوس الكلية الموجودة في جيبك.</p>
           </div>
-          <div class="sm:col-span-3">
-            <label for="expenseAmountInput" class="block text-xs font-bold text-slate-700 mb-1">المبلغ المصروف (د.ع) *</label>
-            <input type="number" id="expenseAmountInput" required min="1" step="any" placeholder="0" class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-3 py-2 font-extrabold text-slate-900 focus:bg-white focus:border-rose-500 outline-none" />
-          </div>
-          <div class="sm:col-span-2">
-            <label for="expenseDateInput" class="block text-xs font-bold text-slate-700 mb-1">التاريخ</label>
-            <input type="date" id="expenseDateInput" required class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-2.5 py-2 text-slate-900 focus:bg-white focus:border-rose-500 outline-none" />
-          </div>
-          <div class="sm:col-span-2 flex items-end">
-            <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-extrabold py-2 px-3 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 text-xs sm:text-sm">
-              <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-              <span id="saveExpenseBtnText">حفظ الصرف</span>
-            </button>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <div class="sm:col-span-5">
+              <label for="expenseTitleInput" class="block text-xs font-bold text-slate-700 mb-1">شنو صرفت؟ (التفاصيل) *</label>
+              <input type="text" id="expenseTitleInput" required placeholder="مثال: غداء، بنزين، لاصق للمحل، ضيافة..." class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-3 py-2 text-slate-900 focus:bg-white focus:border-rose-500 outline-none" />
+            </div>
+            <div class="sm:col-span-3">
+              <label for="expenseAmountInput" class="block text-xs font-bold text-slate-700 mb-1">المبلغ المصروف (د.ع) *</label>
+              <input type="number" id="expenseAmountInput" required min="1" step="any" placeholder="0" class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-3 py-2 font-extrabold text-slate-900 focus:bg-white focus:border-rose-500 outline-none" />
+            </div>
+            <div class="sm:col-span-2">
+              <label for="expenseDateInput" class="block text-xs font-bold text-slate-700 mb-1">التاريخ</label>
+              <input type="date" id="expenseDateInput" required class="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-2.5 py-2 text-slate-900 focus:bg-white focus:border-rose-500 outline-none" />
+            </div>
+            <div class="sm:col-span-2 flex items-end">
+              <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-extrabold py-2 px-3 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+                <svg width="16" height="16" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                <span id="saveExpenseBtnText">حفظ الصرف</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1238,8 +1295,18 @@
       <!-- سجل المصاريف المحفوظة -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5 space-y-3.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <h3 class="text-sm sm:text-base font-extrabold text-slate-900">سجل المصاريف والحركات في جيبي</h3>
-          <input type="text" id="expensesSearchInput" placeholder="بحث في المصاريف..." class="w-full sm:w-52 rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-indigo-600" />
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold text-slate-900">سجل المصاريف الخاصة والحركات</h3>
+            <p class="text-xs text-slate-500">يمكنك فلترة المصاريف لمعرفة ما صرفته من جيبك أو ما صُرف من أرباح المحل</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <select id="expensesCategoryFilter" class="rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 outline-none focus:border-indigo-600">
+              <option value="all">كل المصاريف والحركات</option>
+              <option value="pocket">مصاريف من أرباحي (جيبي)</option>
+              <option value="shop">مصاريف مخصومة من أرباح المحل</option>
+            </select>
+            <input type="text" id="expensesSearchInput" placeholder="بحث في المصاريف..." class="flex-1 sm:w-48 rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs outline-none focus:bg-white focus:border-indigo-600" />
+          </div>
         </div>
         <div id="expensesListContainer" class="space-y-2"></div>
       </div>
@@ -1638,6 +1705,7 @@
       let currentNeedsParts = false;
       let selectedPartsSet = new Set();
       let currentPayType = 'cash';
+      let currentExpenseDeductFrom = 'pocket'; // 'pocket' | 'shop'
       let activeWholesalerDetailId = null;
       let profitFilterMode = 'single';
       let lastSelectedRatio = null;
@@ -1724,6 +1792,39 @@
       }
 
       // ==========================================
+      // SHOP EXPENSES & DAILY NET PROFIT HELPERS
+      // ==========================================
+      function getShopExpensesForDate(dateStr) {
+        return state.expenses
+          .filter(ex => ex.date === dateStr && ex.deductFrom === 'shop')
+          .reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+      }
+
+      function getShopExpensesForRange(startDate, endDate) {
+        return state.expenses
+          .filter(ex => ex.deductFrom === 'shop' && ex.date >= startDate && ex.date <= endDate)
+          .reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+      }
+
+      function getDayNetProfitAfterShopExpenses(dateStr) {
+        const devicesNet = state.devices
+          .filter(d => d.date === dateStr)
+          .reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+        const shopExp = getShopExpensesForDate(dateStr);
+        return devicesNet - shopExp;
+      }
+
+      // Sync dynamic daily shares when devices or shop expenses change on a day saved with a ratio
+      function syncDailyShareForDate(dateStr) {
+        const entry = state.dailyShares[dateStr];
+        if (!entry) return;
+        if (typeof entry.ratio === 'number' && !isNaN(entry.ratio)) {
+          const dayNet = getDayNetProfitAfterShopExpenses(dateStr);
+          entry.myShare = Math.round(dayNet * entry.ratio);
+        }
+      }
+
+      // ==========================================
       // VIP SOUND EFFECTS & CONFETTI ENGINE
       // ==========================================
       function playVipSound(kind = 'success') {
@@ -1736,7 +1837,6 @@
 
           const now = audioCtx.currentTime;
           if (kind === 'cash') {
-            // Crisp two-tone cash register chime
             const freqs = [587.33, 880, 1174.66];
             freqs.forEach((f, idx) => {
               const osc = audioCtx.createOscillator();
@@ -1764,7 +1864,7 @@
             osc.stop(now + 0.13);
           }
         } catch (e) {
-          // Ignore audio context errors if blocked
+          // Ignore audio context errors
         }
       }
 
@@ -1948,18 +2048,6 @@
         }
       }
 
-      // Sync dynamic daily shares when devices change on a day that was saved with a ratio
-      function syncDailyShareForDate(dateStr) {
-        const entry = state.dailyShares[dateStr];
-        if (!entry) return;
-        if (typeof entry.ratio === 'number' && !isNaN(entry.ratio)) {
-          const dayNet = state.devices
-            .filter(d => d.date === dateStr)
-            .reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
-          entry.myShare = Math.round(dayNet * entry.ratio);
-        }
-      }
-
       // ==========================================
       // FEATURE 1: UNAPPROVED DAYS ALERT
       // ==========================================
@@ -1968,14 +2056,17 @@
         state.devices.forEach(d => {
           if (!d.date) return;
           if (!byDate[d.date]) {
-            byDate[d.date] = { date: d.date, count: 0, netProfit: 0 };
+            byDate[d.date] = { date: d.date, count: 0 };
           }
           byDate[d.date].count += 1;
-          byDate[d.date].netProfit += Number(d.netProfit) || 0;
         });
 
         return Object.values(byDate)
           .filter(item => state.dailyShares[item.date] === undefined)
+          .map(item => ({
+            ...item,
+            netProfit: getDayNetProfitAfterShopExpenses(item.date)
+          }))
           .sort((a, b) => b.date.localeCompare(a.date));
       }
 
@@ -2038,14 +2129,14 @@
       }
 
       // ==========================================
-      // FEATURE 2: BUILT-IN PDF / PRINT REPORT
+      // FEATURE 2A: SHOP PDF / PRINT REPORT
       // (EXCLUDES ANY SHARE / RATIO / 50% / 33% / 25% INFO)
       // ==========================================
-      function openPdfReportModal(devicesList, reportTitleLabel) {
+      function openPdfReportModal(devicesList, reportTitleLabel, shopExpensesList = []) {
         const userName = (state.profile && state.profile.name) ? state.profile.name : 'أيمن';
         let totalRev = 0;
         let totalParts = 0;
-        let totalNet = 0;
+        let totalDevicesNet = 0;
         let totalCashParts = 0;
         let totalDebtParts = 0;
         const byWholesaler = {};
@@ -2056,7 +2147,7 @@
           const net = Number(d.netProfit) || 0;
           totalRev += rev;
           totalParts += cost;
-          totalNet += net;
+          totalDevicesNet += net;
 
           if (d.needsParts) {
             if (d.payType === 'debt' && !d.debtSettled) {
@@ -2081,6 +2172,9 @@
             byWholesaler[wName].items.push(`${d.partName} ${d.model} (${cost.toLocaleString('en-US')})`);
           }
         });
+
+        const totalShopExp = shopExpensesList.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+        const finalShopNet = totalDevicesNet - totalShopExp;
 
         const deviceRows = devicesList.length === 0
           ? `<tr><td colspan="9" style="text-align:center;padding:16px;color:#64748b;">لا توجد أجهزة مسجلة في هذه الفترة</td></tr>`
@@ -2119,12 +2213,38 @@
               </tr>
             `).join('');
 
+        const shopExpSection = shopExpensesList.length > 0
+          ? `
+            <h3 style="color:#1e3a8a;font-size:15px;font-weight:800;margin:16px 0 8px 0;">مصاريف المحل المخصومة من الربح العام</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:right;margin-bottom:16px;">
+              <thead>
+                <tr style="border-bottom:2px solid #1e3a8a;color:#1e3a8a;">
+                  <th style="padding:8px;">#</th>
+                  <th style="padding:8px;">التفاصيل</th>
+                  <th style="padding:8px;">التاريخ</th>
+                  <th style="padding:8px;">المبلغ المخصوم</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${shopExpensesList.map((ex, i) => `
+                  <tr>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${i + 1}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${escapeHtml(ex.title)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(ex.date)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#be123c;font-weight:700;">${formatCurrency(ex.amount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `
+          : '';
+
         // Clean summary WITHOUT personal share or 50% / 33% / 25% splits
         const reportHtml = `
           <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;background:#ffffff;">
             <div style="background:#1e3a8a;color:#ffffff;padding:16px 20px;border-radius:12px;margin-bottom:16px;">
-              <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير صيانة الأجهزة — ${escapeHtml(reportTitleLabel)}</h2>
-              <p style="margin:0;font-size:13px;color:#e2e8f0;">الفني المسؤول: ${escapeHtml(userName)} &nbsp;|&nbsp; عدد الأجهزة: ${devicesList.length} أجهزة &nbsp;|&nbsp; صافي الربح الكلي: ${formatCurrency(totalNet)}</p>
+              <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير صيانة الأجهزة وأرباح المحل — ${escapeHtml(reportTitleLabel)}</h2>
+              <p style="margin:0;font-size:13px;color:#e2e8f0;">الفني المسؤول: ${escapeHtml(userName)} &nbsp;|&nbsp; عدد الأجهزة: ${devicesList.length} أجهزة &nbsp;|&nbsp; صافي الربح الكلي للمحل: ${formatCurrency(finalShopNet)}</p>
             </div>
 
             <h3 style="color:#1e3a8a;font-size:15px;font-weight:800;margin:14px 0 8px 0;">1. جدول الأجهزة المصلحة وتفاصيل الصيانة</h3>
@@ -2153,7 +2273,7 @@
                   <td style="padding:8px;">—</td>
                   <td style="padding:8px;">${formatCurrency(totalParts)}</td>
                   <td style="padding:8px;">${formatCurrency(totalRev)}</td>
-                  <td style="padding:8px;">${formatCurrency(totalNet)}</td>
+                  <td style="padding:8px;">${formatCurrency(totalDevicesNet)}</td>
                 </tr>
               </tbody>
             </table>
@@ -2174,17 +2294,162 @@
               </tbody>
             </table>
 
+            ${shopExpSection}
+
             <div style="border-top:1px solid #cbd5e1;padding-top:12px;font-size:13px;line-height:1.8;">
-              <strong style="color:#1e3a8a;display:block;margin-bottom:4px;">3. الملخص المالي العام للفترة:</strong>
+              <strong style="color:#1e3a8a;display:block;margin-bottom:4px;">3. الملخص المالي العام للمحل:</strong>
               <div>• <strong>إجمالي مبالغ التصليح المستلمة:</strong> ${formatCurrency(totalRev)}</div>
               <div>• <strong>إجمالي تكلفة قطع الغيار:</strong> ${formatCurrency(totalParts)} (المدفوع نقد/مسدد: ${formatCurrency(totalCashParts)} &nbsp;|&nbsp; الدين المتبقي: ${formatCurrency(totalDebtParts)})</div>
-              <div>• <strong>صافي الربح الكلي بعد خصم القطع:</strong> <strong>${formatCurrency(totalNet)}</strong></div>
+              ${totalShopExp > 0 ? `<div>• <strong>مصاريف المحل المخصومة:</strong> ${formatCurrency(totalShopExp)}</div>` : ''}
+              <div>• <strong>صافي الربح الكلي للمحل:</strong> <strong>${formatCurrency(finalShopNet)}</strong></div>
             </div>
           </div>
         `;
 
         lastGeneratedReportHtml = reportHtml;
         lastGeneratedReportTitle = reportTitleLabel;
+        document.getElementById('pdfReportContentArea').innerHTML = reportHtml;
+        document.getElementById('pdfReportModal').classList.remove('hidden');
+      }
+
+      // ==========================================
+      // FEATURE 2B: PERSONAL MY PROFITS PDF REPORT
+      // (تقرير PDF لأرباحي الخاصة خلال اليوم أو الفترة المحددة)
+      // ==========================================
+      function openMyPersonalProfitsPdfModal(startDate, endDate, reportTitleLabel) {
+        const userName = (state.profile && state.profile.name) ? state.profile.name : 'أيمن';
+
+        // Collect all dates within [startDate, endDate] that have devices, shop expenses, or approved shares
+        const dateSet = new Set();
+        state.devices.forEach(d => {
+          if (d.date >= startDate && d.date <= endDate) dateSet.add(d.date);
+        });
+        state.expenses.forEach(ex => {
+          if (ex.deductFrom === 'shop' && ex.date >= startDate && ex.date <= endDate) dateSet.add(ex.date);
+        });
+        Object.keys(state.dailyShares).forEach(dt => {
+          if (dt >= startDate && dt <= endDate) dateSet.add(dt);
+        });
+
+        const sortedDates = Array.from(dateSet).sort((a, b) => a.localeCompare(b));
+
+        let totalDevicesCount = 0;
+        let totalShopNetAll = 0;
+        let totalMyShareAll = 0;
+
+        const dayRows = sortedDates.length === 0
+          ? `<tr><td colspan="6" style="text-align:center;padding:16px;color:#64748b;">لا توجد بيانات أرباح مسجلة في هذه الفترة</td></tr>`
+          : sortedDates.map((dt, idx) => {
+              const dayDevs = state.devices.filter(d => d.date === dt);
+              const devCount = dayDevs.length;
+              const dayShopExp = getShopExpensesForDate(dt);
+              const dayShopNet = getDayNetProfitAfterShopExpenses(dt);
+              const shareEntry = state.dailyShares[dt];
+              const isApproved = shareEntry !== undefined;
+              // If approved, use approved myShare; if single day currently previewed, use input or 0
+              const myShareVal = isApproved
+                ? (Number(shareEntry.myShare) || 0)
+                : (profitFilterMode === 'single' && dt === startDate ? (Number(document.getElementById('myShareAmountInput').value) || 0) : 0);
+
+              totalDevicesCount += devCount;
+              totalShopNetAll += dayShopNet;
+              totalMyShareAll += myShareVal;
+
+              return `
+                <tr>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${idx + 1}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${escapeHtml(dt)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${devCount} أجهزة</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#be123c;">${dayShopExp > 0 ? formatCurrency(dayShopExp) : '—'}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${formatCurrency(dayShopNet)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:800;color:#047857;">
+                    ${formatCurrency(myShareVal)}
+                    <span style="font-size:11px;color:${isApproved ? '#059669' : '#d97706'};margin-right:4px;">
+                      (${isApproved ? 'معتمد ✓' : 'غير معتمد'})
+                    </span>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+
+        // Personal pocket expenses in the same period
+        const myPocketExpensesInPeriod = state.expenses.filter(
+          ex => (ex.deductFrom || 'pocket') === 'pocket' && ex.date >= startDate && ex.date <= endDate
+        );
+        const totalMyPocketExp = myPocketExpensesInPeriod.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+        const netMyProfitAfterPersonalExp = totalMyShareAll - totalMyPocketExp;
+
+        const personalExpTable = myPocketExpensesInPeriod.length > 0
+          ? `
+            <h3 style="color:#047857;font-size:15px;font-weight:800;margin:16px 0 8px 0;">2. مصاريفي الشخصية (من جيبي) خلال هذه الفترة</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:right;margin-bottom:16px;">
+              <thead>
+                <tr style="border-bottom:2px solid #047857;color:#047857;">
+                  <th style="padding:8px;">#</th>
+                  <th style="padding:8px;">التفاصيل</th>
+                  <th style="padding:8px;">التاريخ</th>
+                  <th style="padding:8px;">المبلغ المصروف</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${myPocketExpensesInPeriod.map((ex, i) => `
+                  <tr>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${i + 1}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${escapeHtml(ex.title)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(ex.date)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #e2e8f0;color:#be123c;font-weight:700;">${formatCurrency(ex.amount)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `
+          : '';
+
+        const reportHtml = `
+          <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;background:#ffffff;">
+            <div style="background:#047857;color:#ffffff;padding:16px 20px;border-radius:12px;margin-bottom:16px;">
+              <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير أرباحي الخاصة — ${escapeHtml(reportTitleLabel)}</h2>
+              <p style="margin:0;font-size:13px;color:#d1fae5;">الاسم: ${escapeHtml(userName)} &nbsp;|&nbsp; إجمالي الأجهزة: ${totalDevicesCount} أجهزة &nbsp;|&nbsp; مجموع ربحي الخاص: ${formatCurrency(totalMyShareAll)}</p>
+            </div>
+
+            <h3 style="color:#047857;font-size:15px;font-weight:800;margin:14px 0 8px 0;">1. جدول تفاصيل أرباحي اليومية خلال الفترة</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:right;margin-bottom:16px;">
+              <thead>
+                <tr style="border-bottom:2px solid #047857;color:#047857;">
+                  <th style="padding:8px;">#</th>
+                  <th style="padding:8px;">التاريخ</th>
+                  <th style="padding:8px;">الأجهزة المصلحة</th>
+                  <th style="padding:8px;">مصاريف المحل</th>
+                  <th style="padding:8px;">صافي ربح المحل</th>
+                  <th style="padding:8px;">ربحي الخاص (حصتي)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dayRows}
+                <tr style="border-top:2px solid #047857;border-bottom:2px solid #047857;font-weight:800;color:#047857;background:#f0fdf4;">
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">المجموع (${sortedDates.length} أيام)</td>
+                  <td style="padding:8px;">${totalDevicesCount} أجهزة</td>
+                  <td style="padding:8px;">—</td>
+                  <td style="padding:8px;">${formatCurrency(totalShopNetAll)}</td>
+                  <td style="padding:8px;">${formatCurrency(totalMyShareAll)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            ${personalExpTable}
+
+            <div style="border-top:1px solid #cbd5e1;padding-top:12px;font-size:13px;line-height:1.8;">
+              <strong style="color:#047857;display:block;margin-bottom:4px;">خلاصة أرباحي الخاصة للفترة:</strong>
+              <div>• <strong>إجمالي ربحي الخاص (حصتي من الصيانة):</strong> <strong>${formatCurrency(totalMyShareAll)}</strong></div>
+              <div>• <strong>إجمالي مصاريفي الشخصية في هذه الفترة:</strong> ${formatCurrency(totalMyPocketExp)}</div>
+              <div>• <strong>الصافي المتبقي لي من أرباح هذه الفترة:</strong> <strong style="color:#047857;">${formatCurrency(netMyProfitAfterPersonalExp)}</strong></div>
+            </div>
+          </div>
+        `;
+
+        lastGeneratedReportHtml = reportHtml;
+        lastGeneratedReportTitle = `أرباحي-الخاصة-${reportTitleLabel}`;
         document.getElementById('pdfReportContentArea').innerHTML = reportHtml;
         document.getElementById('pdfReportModal').classList.remove('hidden');
       }
@@ -2273,7 +2538,7 @@
       }
 
       // ==========================================
-      // SECTION 1: NEW DEVICE LOGIC
+      // SECTION 1: NEW DEVICE LOGIC & ADVANCED FILTER
       // ==========================================
       function setNeedsParts(val) {
         currentNeedsParts = Boolean(val);
@@ -2403,7 +2668,6 @@
         updateNetProfitPreview();
       }
 
-      // Helper to change payment status of any device part from anywhere
       function updateDevicePaymentStatus(devId, newStatus) {
         const dev = state.devices.find(d => d.id === devId);
         if (!dev || !dev.needsParts) return;
@@ -2426,18 +2690,35 @@
         renderAll();
       }
 
-      function renderDevicesList() {
+      function getFilteredDevicesInNewDeviceTab() {
         const today = getTodayISO();
-        const todayCount = state.devices.filter(d => d.date === today).length;
-        document.getElementById('todayDevicesCountBadge').textContent = String(todayCount);
-
         const filterMode = document.getElementById('devicesFilterMode').value;
         const query = document.getElementById('devicesSearchInput').value.trim().toLowerCase();
 
+        const singleWrap = document.getElementById('devicesSingleDateWrap');
+        const rangeWrap = document.getElementById('devicesRangeDateWrap');
+        singleWrap.classList.toggle('hidden', filterMode !== 'single');
+        rangeWrap.classList.toggle('hidden', filterMode !== 'range');
+
         let filtered = state.devices.slice().sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
+        let label = `يوم ${today}`;
+
         if (filterMode === 'today') {
           filtered = filtered.filter(d => d.date === today);
+          label = `يوم ${today}`;
+        } else if (filterMode === 'single') {
+          const selDate = document.getElementById('devicesFilterSingleDate').value || today;
+          filtered = filtered.filter(d => d.date === selDate);
+          label = `يوم ${selDate}`;
+        } else if (filterMode === 'range') {
+          const sDate = document.getElementById('devicesFilterStartDate').value || '0000-00-00';
+          const eDate = document.getElementById('devicesFilterEndDate').value || '9999-12-31';
+          filtered = filtered.filter(d => d.date >= sDate && d.date <= eDate);
+          label = `الفترة من ${sDate} إلى ${eDate}`;
+        } else {
+          label = 'جميع الأجهزة المسجلة';
         }
+
         if (query) {
           filtered = filtered.filter(d =>
             (d.model && d.model.toLowerCase().includes(query)) ||
@@ -2445,6 +2726,23 @@
             (d.partName && d.partName.toLowerCase().includes(query))
           );
         }
+
+        return { filtered, label, filterMode };
+      }
+
+      function renderDevicesList() {
+        const today = getTodayISO();
+        const todayCount = state.devices.filter(d => d.date === today).length;
+        document.getElementById('todayDevicesCountBadge').textContent = String(todayCount);
+
+        const { filtered } = getFilteredDevicesInNewDeviceTab();
+
+        // Update summary bar in New Device log
+        const totalRev = filtered.reduce((sum, d) => sum + (Number(d.repairPrice) || 0), 0);
+        const totalNet = filtered.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+        document.getElementById('filteredDevicesCountText').textContent = `${filtered.length} أجهزة`;
+        document.getElementById('filteredDevicesRevenueText').textContent = formatCurrency(totalRev);
+        document.getElementById('filteredDevicesNetText').textContent = formatCurrency(totalNet);
 
         const container = document.getElementById('devicesListContainer');
         if (filtered.length === 0) {
@@ -2756,27 +3054,53 @@
         }
       }
 
+      function getFilteredShopExpensesAmountForProfits() {
+        if (profitFilterMode === 'single') {
+          const d = document.getElementById('profitSingleDate').value || getTodayISO();
+          return getShopExpensesForDate(d);
+        } else {
+          const s = document.getElementById('profitStartDate').value || '0000-00-00';
+          const e = document.getElementById('profitEndDate').value || '9999-12-31';
+          return getShopExpensesForRange(s, e);
+        }
+      }
+
       function renderProfitsSection() {
         const list = getFilteredDevicesForProfits();
         let totalRev = 0;
         let totalParts = 0;
-        let totalNet = 0;
+        let devicesNet = 0;
 
         list.forEach(d => {
           totalRev += Number(d.repairPrice) || 0;
           totalParts += d.needsParts ? (Number(d.partCost) || 0) : 0;
-          totalNet += Number(d.netProfit) || 0;
+          devicesNet += Number(d.netProfit) || 0;
         });
+
+        const shopExpTotal = getFilteredShopExpensesAmountForProfits();
+        const totalNet = devicesNet - shopExpTotal;
 
         document.getElementById('profitTotalRevenue').textContent = formatCurrency(totalRev);
         document.getElementById('profitDevicesCount').textContent = `${list.length} جهاز مصلح`;
         document.getElementById('profitTotalPartsCost').textContent = formatCurrency(totalParts);
         document.getElementById('profitTotalNet').textContent = formatCurrency(totalNet);
 
+        const shopExpNote = document.getElementById('profitShopExpensesNote');
+        if (shopExpTotal > 0) {
+          shopExpNote.textContent = `+ مصاريف محل مخصومة: ${formatCurrency(shopExpTotal)}`;
+          shopExpNote.className = 'text-[11px] text-amber-700 font-bold mt-0.5 block';
+        } else {
+          shopExpNote.textContent = 'تُخصم تلقائياً من الدخل';
+          shopExpNote.className = 'text-[11px] text-slate-400 mt-0.5 block';
+        }
+
         const statusEl = document.getElementById('profitLossStatusText');
         if (totalNet < 0) {
           statusEl.textContent = 'يوجد صافي خسارة في هذه الفترة';
           statusEl.className = 'text-[11px] text-rose-600 font-bold mt-0.5 block';
+        } else if (shopExpTotal > 0) {
+          statusEl.textContent = `بعد خصم القطع ومصاريف المحل (${formatCurrency(shopExpTotal)})`;
+          statusEl.className = 'text-[11px] text-indigo-600 font-bold mt-0.5 block';
         } else {
           statusEl.textContent = 'صافي الربح بعد خصم تكلفة القطع';
           statusEl.className = 'text-[11px] text-indigo-500 font-semibold mt-0.5 block';
@@ -2819,10 +3143,12 @@
       }
 
       function updateShareSplitPreview(totalNetOverride) {
-        const list = getFilteredDevicesForProfits();
-        const totalNet = totalNetOverride !== undefined
-          ? totalNetOverride
-          : list.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+        let totalNet = totalNetOverride;
+        if (totalNet === undefined) {
+          const list = getFilteredDevicesForProfits();
+          const devicesNet = list.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+          totalNet = devicesNet - getFilteredShopExpensesAmountForProfits();
+        }
 
         const myShare = Number(document.getElementById('myShareAmountInput').value) || 0;
         const ownerShare = totalNet - myShare;
@@ -2846,8 +3172,8 @@
 
         container.innerHTML = dates.map(dateStr => {
           const entry = state.dailyShares[dateStr];
-          const dayDevices = state.devices.filter(d => d.date === dateStr);
-          const dayNet = dayDevices.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+          const dayNet = getDayNetProfitAfterShopExpenses(dateStr);
+          const shopExp = getShopExpensesForDate(dateStr);
           const myShare = Number(entry.myShare) || 0;
           const ownerShare = dayNet - myShare;
 
@@ -2856,6 +3182,7 @@
               <div class="flex flex-wrap items-center gap-2">
                 <span class="font-extrabold text-xs sm:text-sm text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">${escapeHtml(dateStr)}</span>
                 <span class="text-xs text-slate-500 font-semibold">صافي ربح اليوم: <strong class="money-blur-target text-slate-800">${formatCurrency(dayNet)}</strong></span>
+                ${shopExp > 0 ? `<span class="text-[11px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">مخصوم مصاريف محل: ${formatCurrency(shopExp)}</span>` : ''}
               </div>
               <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2">
                 <span class="money-blur-target text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
@@ -2873,21 +3200,47 @@
       }
 
       // ==========================================
-      // SECTION 4: MY POCKET (جيبي) LOGIC
+      // SECTION 4: MY POCKET (جيبي) & SPECIAL EXPENSES LOGIC
       // ==========================================
+      function setExpenseDeductSource(source) {
+        currentExpenseDeductFrom = source === 'shop' ? 'shop' : 'pocket';
+        const pocketBtn = document.getElementById('deductFromPocketBtn');
+        const shopBtn = document.getElementById('deductFromShopBtn');
+        const hint = document.getElementById('expenseDeductSourceHint');
+
+        if (currentExpenseDeductFrom === 'pocket') {
+          pocketBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-rose-600 text-white border-rose-600 shadow-sm';
+          shopBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-slate-50 text-slate-700 border-slate-300 hover:bg-amber-50';
+          hint.textContent = 'سيتم خصم هذا المبلغ من الفلوس الكلية الموجودة في جيبك (مصروف شخصي).';
+          hint.className = 'text-[11px] text-rose-700 font-semibold mt-1';
+        } else {
+          shopBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-amber-600 text-white border-amber-600 shadow-sm';
+          pocketBtn.className = 'py-2.5 px-3.5 rounded-xl font-extrabold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-2 bg-slate-50 text-slate-700 border-slate-300 hover:bg-rose-50';
+          hint.textContent = 'سيتم خصم هذا المبلغ من صافي ربح المحل الكلي لهذا اليوم قبل تقسيم حصتك (لا ينقص من فلوس جيبك المباشرة).';
+          hint.className = 'text-[11px] text-amber-800 font-semibold mt-1';
+        }
+      }
+
       function getPocketTotals() {
         const totalApprovedProfit = Object.values(state.dailyShares).reduce(
           (sum, item) => sum + (Number(item.myShare) || 0),
           0
         );
         const totalDeposits = state.deposits.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-        const totalExpenses = state.expenses.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
-        const netPocketCash = totalApprovedProfit + totalDeposits - totalExpenses;
+        const pocketExpensesList = state.expenses.filter(ex => (ex.deductFrom || 'pocket') === 'pocket');
+        const shopExpensesList = state.expenses.filter(ex => ex.deductFrom === 'shop');
+
+        const totalPocketExpenses = pocketExpensesList.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+        const totalShopExpenses = shopExpensesList.reduce((sum, ex) => sum + (Number(ex.amount) || 0), 0);
+        const netPocketCash = totalApprovedProfit + totalDeposits - totalPocketExpenses;
 
         return {
           totalApprovedProfit,
           totalDeposits,
-          totalExpenses,
+          totalExpenses: totalPocketExpenses,
+          totalShopExpenses,
+          pocketExpensesCount: pocketExpensesList.length,
+          shopExpensesCount: shopExpensesList.length,
           netPocketCash
         };
       }
@@ -2897,7 +3250,8 @@
         document.getElementById('expenseTitleInput').value = '';
         document.getElementById('expenseAmountInput').value = '';
         document.getElementById('expenseDateInput').value = getTodayISO();
-        document.getElementById('expenseFormHeading').textContent = 'تسجيل صرف جديد (المصاريف)';
+        setExpenseDeductSource('pocket');
+        document.getElementById('expenseFormHeading').textContent = 'مصاريف خاصة (تسجيل صرف جديد)';
         document.getElementById('saveExpenseBtnText').textContent = 'حفظ الصرف';
         document.getElementById('cancelEditExpenseBtn').classList.add('hidden');
       }
@@ -2919,15 +3273,27 @@
           extraNote.textContent = 'مجموع حصصك المعتمدة من قسم الأرباح والخسائر';
         }
 
-        document.getElementById('pocketExpensesCountNote').textContent = `${state.expenses.length} عملية صرف مسجلة`;
+        const expCountNote = document.getElementById('pocketExpensesCountNote');
+        if (totals.totalShopExpenses > 0) {
+          expCountNote.textContent = `${totals.pocketExpensesCount} صرف من جيبي | ومصاريف المحل: ${formatCurrency(totals.totalShopExpenses)}`;
+        } else {
+          expCountNote.textContent = `${totals.pocketExpensesCount} عملية صرف مسجلة من جيبي`;
+        }
 
+        const catFilter = document.getElementById('expensesCategoryFilter').value;
         const query = document.getElementById('expensesSearchInput').value.trim().toLowerCase();
         const container = document.getElementById('expensesListContainer');
 
-        const combined = [
-          ...state.expenses.map(e => ({ ...e, entryType: 'expense' })),
+        let combined = [
+          ...state.expenses.map(e => ({ ...e, deductFrom: e.deductFrom || 'pocket', entryType: 'expense' })),
           ...state.deposits.map(d => ({ id: d.id, title: d.reason, amount: d.amount, date: d.date, entryType: 'deposit' }))
         ].sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
+
+        if (catFilter === 'pocket') {
+          combined = combined.filter(item => item.entryType === 'expense' && item.deductFrom === 'pocket');
+        } else if (catFilter === 'shop') {
+          combined = combined.filter(item => item.entryType === 'expense' && item.deductFrom === 'shop');
+        }
 
         const filtered = query
           ? combined.filter(item => item.title && item.title.toLowerCase().includes(query))
@@ -2936,7 +3302,7 @@
         if (filtered.length === 0) {
           container.innerHTML = `
             <div class="text-center py-6 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 text-xs sm:text-sm">
-              لا توجد مصاريف مسجلة حتى الآن.
+              لا توجد مصاريف مسجلة في هذا العرض حالياً.
             </div>
           `;
           return;
@@ -2948,7 +3314,7 @@
               <div class="p-3 rounded-xl border border-indigo-200 bg-indigo-50/40 flex items-center justify-between gap-2.5">
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="text-[11px] px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-800 font-bold">رصيد مضاف</span>
+                    <span class="text-[11px] px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-800 font-bold">رصيد مضاف لجيبي</span>
                     <span class="font-extrabold text-xs sm:text-sm text-slate-900">${escapeHtml(item.title)}</span>
                   </div>
                   <span class="text-[11px] text-slate-400 block mt-0.5">${escapeHtml(item.date)}</span>
@@ -2963,17 +3329,25 @@
             `;
           }
 
+          const isShopExp = item.deductFrom === 'shop';
+          const badgeClass = isShopExp
+            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+            : 'bg-rose-50 text-rose-700 border border-rose-200';
+          const badgeText = isShopExp
+            ? '🏪 مخصوم من أرباح المحل'
+            : '👛 مخصوم من أرباحي (جيبي)';
+
           return `
             <div class="p-3 rounded-xl border border-slate-200 bg-white hover:border-rose-200 flex items-center justify-between gap-2.5 shadow-sm transition">
               <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-[11px] px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-bold">صرف</span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-[11px] px-2 py-0.5 rounded-md font-bold ${badgeClass}">${badgeText}</span>
                   <span class="font-extrabold text-xs sm:text-sm text-slate-900">${escapeHtml(item.title)}</span>
                 </div>
                 <span class="text-[11px] text-slate-400 block mt-0.5">${escapeHtml(item.date)}</span>
               </div>
               <div class="flex items-center gap-1.5">
-                <span class="money-blur-target font-extrabold text-xs sm:text-sm text-rose-600 ml-1">-${formatCurrency(item.amount)}</span>
+                <span class="money-blur-target font-extrabold text-xs sm:text-sm ${isShopExp ? 'text-amber-700' : 'text-rose-600'} ml-1">-${formatCurrency(item.amount)}</span>
                 <button type="button" data-edit-expense="${item.id}" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 transition" title="تعديل الصرف">
                   <svg width="15" height="15" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
@@ -3006,6 +3380,9 @@
       function initEvents() {
         const today = getTodayISO();
         document.getElementById('deviceDate').value = today;
+        document.getElementById('devicesFilterSingleDate').value = today;
+        document.getElementById('devicesFilterStartDate').value = today;
+        document.getElementById('devicesFilterEndDate').value = today;
         document.getElementById('profitSingleDate').value = today;
         document.getElementById('profitStartDate').value = today;
         document.getElementById('profitEndDate').value = today;
@@ -3191,9 +3568,7 @@
             const quickHalfBtn = e.target.closest('[data-quick-approve-half]');
             if (quickHalfBtn) {
               const dStr = quickHalfBtn.getAttribute('data-quick-approve-half');
-              const dayNet = state.devices
-                .filter(d => d.date === dStr)
-                .reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+              const dayNet = getDayNetProfitAfterShopExpenses(dStr);
               const myShare = Math.round(dayNet * 0.5);
               state.dailyShares[dStr] = {
                 myShare,
@@ -3224,25 +3599,47 @@
 
         // Built-in PDF / Print Report Modal Events
         document.getElementById('exportTodayPdfBtn').addEventListener('click', () => {
-          const filterMode = document.getElementById('devicesFilterMode').value;
+          const { filtered, label, filterMode } = getFilteredDevicesInNewDeviceTab();
           const todayStr = getTodayISO();
+          let shopExps = [];
           if (filterMode === 'today') {
-            const list = state.devices.filter(d => d.date === todayStr);
-            openPdfReportModal(list, `يوم ${todayStr}`);
+            shopExps = state.expenses.filter(ex => ex.deductFrom === 'shop' && ex.date === todayStr);
+          } else if (filterMode === 'single') {
+            const selD = document.getElementById('devicesFilterSingleDate').value || todayStr;
+            shopExps = state.expenses.filter(ex => ex.deductFrom === 'shop' && ex.date === selD);
+          } else if (filterMode === 'range') {
+            const sD = document.getElementById('devicesFilterStartDate').value || '0000-00-00';
+            const eD = document.getElementById('devicesFilterEndDate').value || '9999-12-31';
+            shopExps = state.expenses.filter(ex => ex.deductFrom === 'shop' && ex.date >= sD && ex.date <= eD);
           } else {
-            openPdfReportModal(state.devices.slice(), 'جميع الأجهزة المسجلة');
+            shopExps = state.expenses.filter(ex => ex.deductFrom === 'shop');
           }
+          openPdfReportModal(filtered, label, shopExps);
         });
 
         document.getElementById('exportProfitsPdfBtn').addEventListener('click', () => {
           const list = getFilteredDevicesForProfits();
           if (profitFilterMode === 'single') {
             const dStr = document.getElementById('profitSingleDate').value || getTodayISO();
-            openPdfReportModal(list, `يوم ${dStr}`);
+            const shopExps = state.expenses.filter(ex => ex.deductFrom === 'shop' && ex.date === dStr);
+            openPdfReportModal(list, `يوم ${dStr}`, shopExps);
           } else {
-            const s = document.getElementById('profitStartDate').value || '';
-            const e = document.getElementById('profitEndDate').value || '';
-            openPdfReportModal(list, `الفترة من ${s} إلى ${e}`);
+            const s = document.getElementById('profitStartDate').value || '0000-00-00';
+            const e = document.getElementById('profitEndDate').value || '9999-12-31';
+            const shopExps = state.expenses.filter(ex => ex.deductFrom === 'shop' && ex.date >= s && ex.date <= e);
+            openPdfReportModal(list, `الفترة من ${s} إلى ${e}`, shopExps);
+          }
+        });
+
+        // Personal Profits PDF Button
+        document.getElementById('exportMyPersonalProfitsPdfBtn').addEventListener('click', () => {
+          if (profitFilterMode === 'single') {
+            const dStr = document.getElementById('profitSingleDate').value || getTodayISO();
+            openMyPersonalProfitsPdfModal(dStr, dStr, `يوم ${dStr}`);
+          } else {
+            const s = document.getElementById('profitStartDate').value || getTodayISO();
+            const e = document.getElementById('profitEndDate').value || getTodayISO();
+            openMyPersonalProfitsPdfModal(s, e, `الفترة من ${s} إلى ${e}`);
           }
         });
 
@@ -3439,8 +3836,17 @@
         });
 
         document.getElementById('cancelEditDeviceBtn').addEventListener('click', resetDeviceForm);
+
+        // Advanced Filter Listeners in New Device Tab
         document.getElementById('devicesFilterMode').addEventListener('change', renderDevicesList);
         document.getElementById('devicesSearchInput').addEventListener('input', renderDevicesList);
+        document.getElementById('devicesFilterSingleDate').addEventListener('change', renderDevicesList);
+        document.getElementById('devicesFilterStartDate').addEventListener('change', renderDevicesList);
+        document.getElementById('devicesFilterEndDate').addEventListener('change', renderDevicesList);
+        document.getElementById('devicesFilterTodayQuickBtn').addEventListener('click', () => {
+          document.getElementById('devicesFilterSingleDate').value = getTodayISO();
+          renderDevicesList();
+        });
 
         // Change payment status directly from Devices List dropdown
         document.getElementById('devicesListContainer').addEventListener('change', (e) => {
@@ -3705,7 +4111,8 @@
             const ratio = Number(btn.getAttribute('data-share-ratio')) || 0;
             lastSelectedRatio = ratio;
             const list = getFilteredDevicesForProfits();
-            const totalNet = list.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+            const devicesNet = list.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+            const totalNet = devicesNet - getFilteredShopExpensesAmountForProfits();
             const calc = Math.round(totalNet * ratio);
             document.getElementById('myShareAmountInput').value = calc;
             playVipSound('click');
@@ -3735,7 +4142,8 @@
             showToast(`تم اعتماد حصتك (${formatCurrency(myShareVal)}) ليوم ${dateStr} وإضافتها إلى جيبي!`);
           } else {
             const list = getFilteredDevicesForProfits();
-            const totalNet = list.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+            const devicesNet = list.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
+            const totalNet = devicesNet - getFilteredShopExpensesAmountForProfits();
             const ratio = totalNet !== 0 ? (myShareVal / totalNet) : 0;
             const uniqueDates = [...new Set(list.map(d => d.date))];
             if (uniqueDates.length === 0) {
@@ -3743,9 +4151,7 @@
               return;
             }
             uniqueDates.forEach(dStr => {
-              const dayNet = state.devices
-                .filter(item => item.date === dStr)
-                .reduce((sum, item) => sum + (Number(item.netProfit) || 0), 0);
+              const dayNet = getDayNetProfitAfterShopExpenses(dStr);
               state.dailyShares[dStr] = {
                 myShare: Math.round(dayNet * ratio),
                 ratio: ratio,
@@ -3786,7 +4192,16 @@
           }
         });
 
-        // Section 4: Pocket (جيبي) Events
+        // Section 4: Pocket (جيبي) & Special Expenses Events
+        document.getElementById('deductFromPocketBtn').addEventListener('click', () => {
+          setExpenseDeductSource('pocket');
+          playVipSound('click');
+        });
+        document.getElementById('deductFromShopBtn').addEventListener('click', () => {
+          setExpenseDeductSource('shop');
+          playVipSound('click');
+        });
+
         document.getElementById('toggleExtraDepositBtn').addEventListener('click', () => {
           document.getElementById('extraDepositForm').classList.toggle('hidden');
         });
@@ -3834,14 +4249,18 @@
           if (editExpId) {
             const exp = state.expenses.find(item => item.id === editExpId);
             if (exp) {
+              const oldDate = exp.date;
               exp.title = title;
               exp.amount = amount;
               exp.date = date;
+              exp.deductFrom = currentExpenseDeductFrom;
+              syncDailyShareForDate(oldDate);
+              syncDailyShareForDate(date);
               saveState();
               resetExpenseForm();
               renderAll();
               playVipSound('click');
-              showToast('تم تعديل الصرف بنجاح');
+              showToast('تم تعديل الصرف وتحديث الحسابات بنجاح');
               return;
             }
           }
@@ -3850,16 +4269,24 @@
             id: 'exp_' + Date.now(),
             title,
             amount,
-            date
+            date,
+            deductFrom: currentExpenseDeductFrom
           });
+          syncDailyShareForDate(date);
           saveState();
+          const savedSource = currentExpenseDeductFrom;
           resetExpenseForm();
           renderAll();
           playVipSound('click');
-          showToast('تم حفظ الصرف وخصمه من الفلوس الكلية في جيبك');
+          if (savedSource === 'shop') {
+            showToast(`تم حفظ الصرف وخصمه من صافي أرباح المحل ليوم (${date})`, 'info');
+          } else {
+            showToast('تم حفظ الصرف وخصمه من الفلوس الكلية في جيبك');
+          }
         });
 
         document.getElementById('cancelEditExpenseBtn').addEventListener('click', resetExpenseForm);
+        document.getElementById('expensesCategoryFilter').addEventListener('change', renderPocketSection);
         document.getElementById('expensesSearchInput').addEventListener('input', renderPocketSection);
 
         document.getElementById('expensesListContainer').addEventListener('click', (e) => {
@@ -3872,6 +4299,7 @@
             document.getElementById('expenseTitleInput').value = exp.title;
             document.getElementById('expenseAmountInput').value = exp.amount;
             document.getElementById('expenseDateInput').value = exp.date;
+            setExpenseDeductSource(exp.deductFrom || 'pocket');
             document.getElementById('expenseFormHeading').textContent = `تعديل الصرف: ${exp.title}`;
             document.getElementById('saveExpenseBtnText').textContent = 'حفظ التعديل';
             document.getElementById('cancelEditExpenseBtn').classList.remove('hidden');
@@ -3882,10 +4310,12 @@
           const delExp = e.target.closest('[data-delete-expense]');
           if (delExp) {
             const id = delExp.getAttribute('data-delete-expense');
+            const exp = state.expenses.find(ex => ex.id === id);
             state.expenses = state.expenses.filter(ex => ex.id !== id);
+            if (exp) syncDailyShareForDate(exp.date);
             saveState();
             renderAll();
-            showToast('تم حذف عملية الصرف وإرجاع المبلغ لجيبك', 'info');
+            showToast('تم حذف عملية الصرف وتحديث الحساب تلقائياً', 'info');
             return;
           }
           const delDep = e.target.closest('[data-delete-deposit]');
