@@ -455,6 +455,8 @@
       #toastContainer,
       #customConfirmModal,
       #confettiCanvas,
+      #interfaceLedMarquee,
+      #floatingSquareWidget,
       .no-print {
         display: none !important;
       }
@@ -477,12 +479,158 @@
         color: #0f172a !important;
       }
     }
+
+    /* ========================================== */
+    /* ANIMATED BORDER LIGHT MARQUEE (نشرة ضوئية) */
+    /* ========================================== */
+    #interfaceLedMarquee {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 44;
+      padding: 4px;
+      border-radius: 0;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      overflow: hidden;
+    }
+    #interfaceLedMarquee .led-marquee-beam {
+      position: absolute;
+      inset: -120%;
+      background: var(
+        --led-border-gradient,
+        conic-gradient(
+          from 0deg,
+          #ff0055,
+          #ff9900,
+          #ffee00,
+          #00ff88,
+          #00ccff,
+          #7700ff,
+          #ff00cc,
+          #ff0055
+        )
+      );
+      animation: ledBorderSpin 3.6s linear infinite;
+    }
+    body.led-border-active::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 43;
+      box-shadow: inset 0 0 14px var(--led-border-glow, rgba(99, 102, 241, 0.55));
+      border: 1px dashed rgba(255, 255, 255, 0.35);
+    }
+    @keyframes ledBorderSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ========================================== */
+    /* FLOATING DRAGGABLE SQUARE WIDGET           */
+    /* ========================================== */
+    #floatingSquareWidget {
+      position: fixed;
+      top: 84px;
+      left: 16px;
+      width: 68px;
+      height: 68px;
+      border-radius: 16px;
+      z-index: 45;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2.5px solid var(--vip-accent, #4f46e5);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.35), 0 0 14px var(--vip-glow, rgba(79, 70, 229, 0.4));
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, transform 0.12s ease;
+    }
+    #floatingSquareWidget.dragging {
+      cursor: grabbing;
+      transform: scale(1.07);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.5), 0 0 22px var(--vip-glow, rgba(79, 70, 229, 0.65));
+    }
+    #floatingSquareWidget .floating-widget-badge {
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.72);
+      color: #ffffff;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ========================================== */
+    /* REPORT BACKGROUND DATE WATERMARK           */
+    /* ========================================== */
+    .report-watermark-wrap {
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .report-watermark-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 54px 28px;
+      align-content: space-around;
+      justify-items: center;
+      padding: 32px 16px;
+      opacity: 0.075;
+      user-select: none;
+      overflow: hidden;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .report-watermark-stamp {
+      transform: rotate(-22deg);
+      font-size: 20px;
+      font-weight: 800;
+      color: #1e3a8a;
+      white-space: nowrap;
+      border: 2px solid #1e3a8a;
+      padding: 4px 14px;
+      border-radius: 10px;
+      letter-spacing: 0.5px;
+    }
+    .report-foreground-content {
+      position: relative;
+      z-index: 1;
+    }
+
   </style>
 </head>
 <body class="app-shell bg-slate-100 text-slate-800">
 
   <!-- Confetti Canvas Overlay for Celebrations -->
   <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+  <!-- Animated Interface Border Light Marquee (نشرة ضوئية متحركة حول الواجهة) -->
+  <div id="interfaceLedMarquee" class="hidden no-print" aria-hidden="true">
+    <div class="led-marquee-beam"></div>
+  </div>
+
+  <!-- Floating Free-Move Square Animated Image Widget (أيقونة مربعة متحركة حرة الحركة) -->
+  <div id="floatingSquareWidget" class="hidden no-print" title="اسحب الأيقونة لتحريكها بحرية في أي مكان بالشاشة">
+    <img id="floatingSquareWidgetImg" src="" alt="أيقونة متحركة" class="w-full h-full object-cover pointer-events-none select-none" />
+    <span class="floating-widget-badge">✥</span>
+  </div>
 
   <!-- Top Mobile & Tablet Header -->
   <header class="mobile-only-bar lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-3.5 py-2.5 shadow-sm">
@@ -739,72 +887,97 @@
 
           <!-- خانة "غير ذلك" تفتح عند اختيار غير ذلك -->
           <div id="customPartInputWrap" class="hidden">
-            <label for="customPartName" class="block text-xs sm:text-sm font-bold text-slate-700 mb-1">اكتب اسم القطعة التي ستشتريها <span class="text-rose-500">*</span></label>
+            <label for="customPartName" class="block text-xs sm:text-sm font-bold text-slate-700 mb-1">اكتب اسم القطعة الإضافية (غير ذلك) <span class="text-rose-500">*</span></label>
             <input type="text" id="customPartName" placeholder="مثال: كاميرا خلفية، سماعة أذن، فلاتة باور..." class="w-full rounded-xl border border-indigo-300 bg-white px-3 py-2 text-slate-900 focus:border-indigo-600 outline-none" />
           </div>
 
-          <!-- 2. سعر شراء القطعة + طريقة الدفع (نقد لو بالدين) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label for="partCostInput" class="block text-xs sm:text-sm font-bold text-slate-800 mb-1">سعر شراء القطعة (التكلفة عليك) <span class="text-rose-500">*</span></label>
-              <div class="relative">
-                <input type="number" id="partCostInput" min="0" step="any" placeholder="0" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pl-12 font-bold text-slate-900 focus:border-indigo-600 outline-none" />
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">د.ع</span>
+          <!-- تخصيص كل قطعة مختارة على حدة (السعر + مركز الجملة + نقد أو بالدين) -->
+          <div id="perPartConfigContainer" class="hidden space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-indigo-100/80 border border-indigo-200 rounded-xl px-3.5 py-2">
+              <div>
+                <h3 class="text-xs sm:text-sm font-extrabold text-indigo-950">تحديد السعر ومركز الجملة وطريقة الدفع لكل قطعة على حدة</h3>
+                <p class="text-[11px] text-indigo-700">حدّد لكل قطعة من أي مركز اشتريتها وهل هي نقد (كاش) أم بالدين (آجل)</p>
               </div>
-              <div class="flex flex-wrap gap-1.5 mt-1.5">
-                <button type="button" data-quick-part="5000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+5,000</button>
-                <button type="button" data-quick-part="10000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+10,000</button>
-                <button type="button" data-quick-part="15000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+15,000</button>
-                <button type="button" data-quick-part="25000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+25,000</button>
-              </div>
-            </div>
-
-            <!-- نقد لو بالدين + حالة التسديد -->
-            <div class="space-y-2">
-              <label class="block text-xs sm:text-sm font-bold text-slate-800 mb-1">طريقة شراء القطعة من الجملة <span class="text-rose-500">*</span></label>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="payTypeCashBtn" class="py-2 px-3 rounded-xl font-bold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1 bg-emerald-600 text-white border-emerald-600 shadow-sm">
-                  <span>نقد (كاش)</span>
-                </button>
-                <button type="button" id="payTypeDebtBtn" class="py-2 px-3 rounded-xl font-bold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1 bg-white text-slate-700 border-slate-300 hover:bg-rose-50">
-                  <span>بالدين (آجل)</span>
-                </button>
-              </div>
-              <p id="payTypeHint" class="text-[11px] text-slate-500">تم دفع مبلغ القطعة نقداً لمركز الجملة.</p>
-
-              <!-- خيار حالة الدين (لم يتم التسديد / تم التسديد) يظهر عند اختيار بالدين -->
-              <div id="debtStatusSelectWrap" class="hidden pt-1">
-                <label for="debtSettledSelect" class="block text-xs font-bold text-rose-800 mb-1">حالة تسديد دين هذه القطعة:</label>
-                <select id="debtSettledSelect" class="w-full rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-indigo-600">
-                  <option value="unpaid">لم يتم التسديد (دين باقي بذمتي)</option>
-                  <option value="paid">تم التسديد ✓ (مدفوع لاحقاً)</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. اختيار مركز الجملة + إضافة سريعة لمركز جملة -->
-          <div class="bg-white rounded-xl p-3 border border-slate-200/90 space-y-2.5">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <label for="deviceWholesalerSelect" id="wholesalerSelectLabel" class="block text-xs sm:text-sm font-bold text-slate-800">اختر مركز الجملة <span class="text-rose-500">*</span></label>
-              <button type="button" id="toggleInlineWholesalerBtn" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 bg-indigo-50 px-2.5 py-1 rounded-lg">
+              <button type="button" id="toggleInlineWholesalerBtnPerPart" class="text-xs font-bold text-indigo-700 hover:text-indigo-900 flex items-center gap-1 bg-white px-2.5 py-1.5 rounded-xl border border-indigo-200 shadow-sm transition">
                 <svg width="14" height="14" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                 <span>إضافة مركز جملة جديد</span>
               </button>
             </div>
 
-            <select id="deviceWholesalerSelect" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 font-semibold focus:bg-white focus:border-indigo-600 outline-none">
-              <option value="">-- اختر مركز الجملة --</option>
-            </select>
+            <div id="perPartConfigList" class="space-y-2.5"></div>
 
-            <!-- نافذة مصغرة لإضافة مركز جملة من داخل قسم جهاز جديد مباشرة -->
-            <div id="inlineAddWholesalerBox" class="hidden pt-2 border-t border-slate-100">
-              <p class="text-xs font-bold text-slate-600 mb-1.5">إضافة مركز جملة جديد فوراً للقائمة:</p>
-              <div class="flex flex-col sm:flex-row gap-2">
-                <input type="text" id="inlineWholesalerName" placeholder="اسم مركز الجملة (مثال: مركز النور)" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-600" />
-                <input type="text" id="inlineWholesalerPhone" placeholder="رقم الهاتف (اختياري)" class="sm:w-44 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-600" />
-                <button type="button" id="saveInlineWholesalerBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition shrink-0">حفظ المركز</button>
+            <!-- شريط إجمالي تكلفة القطع المختارة -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white border border-indigo-200 rounded-xl px-3.5 py-2 text-xs">
+              <span class="font-bold text-slate-700">عدد القطع المختارة لهذا الجهاز: <strong id="perPartSelectedCountBadge" class="text-indigo-700">0 قطع</strong></span>
+              <span class="font-bold text-slate-700">مجموع تكلفة القطع الكلي: <strong id="perPartTotalCostBadge" class="money-blur-target text-rose-700 font-extrabold">0 د.ع</strong></span>
+            </div>
+          </div>
+
+          <!-- الحقول الافتراضية الموحدة (تظهر فقط قبل اختيار شريحة قطعة أو كمزامنة تلقائية) -->
+          <div id="singlePartFallbackBox" class="space-y-3.5">
+            <!-- 2. سعر شراء القطعة + طريقة الدفع (نقد لو بالدين) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label for="partCostInput" class="block text-xs sm:text-sm font-bold text-slate-800 mb-1">سعر شراء القطعة (التكلفة عليك) <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <input type="number" id="partCostInput" min="0" step="any" placeholder="0" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pl-12 font-bold text-slate-900 focus:border-indigo-600 outline-none" />
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">د.ع</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5 mt-1.5">
+                  <button type="button" data-quick-part="5000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+5,000</button>
+                  <button type="button" data-quick-part="10000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+10,000</button>
+                  <button type="button" data-quick-part="15000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+15,000</button>
+                  <button type="button" data-quick-part="25000" class="text-[11px] bg-white border border-slate-200 hover:border-indigo-400 rounded-lg px-2 py-1 text-slate-600 font-semibold">+25,000</button>
+                </div>
               </div>
+
+              <!-- نقد لو بالدين + حالة التسديد -->
+              <div class="space-y-2">
+                <label class="block text-xs sm:text-sm font-bold text-slate-800 mb-1">طريقة شراء القطعة من الجملة <span class="text-rose-500">*</span></label>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" id="payTypeCashBtn" class="py-2 px-3 rounded-xl font-bold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1 bg-emerald-600 text-white border-emerald-600 shadow-sm">
+                    <span>نقد (كاش)</span>
+                  </button>
+                  <button type="button" id="payTypeDebtBtn" class="py-2 px-3 rounded-xl font-bold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1 bg-white text-slate-700 border-slate-300 hover:bg-rose-50">
+                    <span>بالدين (آجل)</span>
+                  </button>
+                </div>
+                <p id="payTypeHint" class="text-[11px] text-slate-500">تم دفع مبلغ القطعة نقداً لمركز الجملة.</p>
+
+                <!-- خيار حالة الدين (لم يتم التسديد / تم التسديد) يظهر عند اختيار بالدين -->
+                <div id="debtStatusSelectWrap" class="hidden pt-1">
+                  <label for="debtSettledSelect" class="block text-xs font-bold text-rose-800 mb-1">حالة تسديد دين هذه القطعة:</label>
+                  <select id="debtSettledSelect" class="w-full rounded-xl border border-rose-300 bg-white px-3 py-1.5 text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-indigo-600">
+                    <option value="unpaid">لم يتم التسديد (دين باقي بذمتي)</option>
+                    <option value="paid">تم التسديد ✓ (مدفوع لاحقاً)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. اختيار مركز الجملة + إضافة سريعة لمركز جملة -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <label for="deviceWholesalerSelect" id="wholesalerSelectLabel" class="block text-xs sm:text-sm font-bold text-slate-800">اختر مركز الجملة <span class="text-rose-500">*</span></label>
+                <button type="button" id="toggleInlineWholesalerBtn" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 bg-indigo-50 px-2.5 py-1 rounded-lg">
+                  <svg width="14" height="14" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                  <span>إضافة مركز جملة جديد</span>
+                </button>
+              </div>
+
+              <select id="deviceWholesalerSelect" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 font-semibold focus:bg-white focus:border-indigo-600 outline-none">
+                <option value="">-- اختر مركز الجملة --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- نافذة مصغرة لإضافة مركز جملة من داخل قسم جهاز جديد مباشرة -->
+          <div id="inlineAddWholesalerBox" class="hidden bg-white rounded-xl p-3 border border-indigo-200 space-y-2">
+            <p class="text-xs font-bold text-slate-700">إضافة مركز جملة جديد فوراً للقائمة:</p>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input type="text" id="inlineWholesalerName" placeholder="اسم مركز الجملة (مثال: المحمود، راكان، النور...)" class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-600" />
+              <input type="text" id="inlineWholesalerPhone" placeholder="رقم الهاتف (اختياري)" class="sm:w-44 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-600" />
+              <button type="button" id="saveInlineWholesalerBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl transition shrink-0">حفظ المركز</button>
             </div>
           </div>
         </div>
@@ -1485,6 +1658,64 @@
               </select>
             </div>
           </div>
+
+          <!-- 7. أيقونة مربعة صغيرة لصورة متحركة حرة الحركة بالشاشة -->
+          <div class="p-3.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/40 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">7. أيقونة مربعة لصورة متحركة حرة الحركة 🖼️</h3>
+                <p class="text-[11px] text-slate-500">أيقونة مربعة تضع فيها صورة متحركة (GIF) وتحركها بحرية تامة بأي مكان بالشاشة وتظل ثابتة</p>
+              </div>
+              <button type="button" id="toggleFloatingWidgetBtn" class="vip-switch off" aria-label="تبديل الأيقونة المتحركة الحرة">
+                <span class="vip-switch-dot"></span>
+              </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+              <label for="floatingWidgetFileInput" class="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm transition inline-flex items-center gap-1">
+                <span>📁 اختيار صورة متحركة (GIF) أو صورة من جهازك</span>
+              </label>
+              <input type="file" id="floatingWidgetFileInput" accept="image/gif,image/webp,image/png,image/jpeg,image/*" class="hidden" />
+              <select id="floatingWidgetSizeSelect" class="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-bold text-slate-800 outline-none focus:border-indigo-600">
+                <option value="56">حجم صغير (56px)</option>
+                <option value="68" selected>حجم متوسط (68px)</option>
+                <option value="86">حجم كبير (86px)</option>
+              </select>
+              <button type="button" id="resetFloatingWidgetPosBtn" class="text-[11px] bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold px-2.5 py-1 rounded-lg transition">
+                إرجاع لمكانها الافتراضي
+              </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-indigo-100">
+              <span class="text-[11px] font-bold text-slate-600">أشكال متحركة جاهزة:</span>
+              <button type="button" data-widget-preset="pulse" class="text-[11px] bg-white hover:bg-indigo-50 border border-slate-300 rounded-lg px-2 py-1 font-bold text-slate-700 transition">⚡ نبض الصيانة الذهبي</button>
+              <button type="button" data-widget-preset="gear" class="text-[11px] bg-white hover:bg-indigo-50 border border-slate-300 rounded-lg px-2 py-1 font-bold text-slate-700 transition">🛠️ شعار الورشة المتحرك</button>
+              <button type="button" data-widget-preset="radar" class="text-[11px] bg-white hover:bg-indigo-50 border border-slate-300 rounded-lg px-2 py-1 font-bold text-slate-700 transition">💎 نيون سايبر متحرك</button>
+            </div>
+          </div>
+
+          <!-- 8. النشرة الضوئية المتحركة حول الواجهة (LED Border Marquee) -->
+          <div class="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/40 space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">8. النشرة الضوئية المتحركة حول الواجهة 🌈</h3>
+                <p class="text-[11px] text-slate-500">خط ضوئي ونشرة متحركة تدور حول حواف الشاشة بألوان متغيرة أو بلون من اختيارك</p>
+              </div>
+              <button type="button" id="toggleLedBorderBtn" class="vip-switch off" aria-label="تبديل النشرة الضوئية المتحركة">
+                <span class="vip-switch-dot"></span>
+              </button>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 pt-1" id="ledBorderColorModesWrap">
+              <button type="button" data-led-mode="rainbow" class="led-mode-chip py-1.5 px-2 rounded-lg border border-indigo-300 bg-white text-slate-800 font-bold text-[11px] hover:bg-indigo-50 transition">🌈 ألوان متغيرة</button>
+              <button type="button" data-led-mode="gold" class="led-mode-chip py-1.5 px-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 font-bold text-[11px] hover:bg-amber-100 transition">✨ ذهبي</button>
+              <button type="button" data-led-mode="cyan" class="led-mode-chip py-1.5 px-2 rounded-lg border border-sky-300 bg-sky-50 text-sky-900 font-bold text-[11px] hover:bg-sky-100 transition">💎 سماوي</button>
+              <button type="button" data-led-mode="emerald" class="led-mode-chip py-1.5 px-2 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 font-bold text-[11px] hover:bg-emerald-100 transition">🟢 زمردي</button>
+              <button type="button" data-led-mode="crimson" class="led-mode-chip py-1.5 px-2 rounded-lg border border-rose-300 bg-rose-50 text-rose-900 font-bold text-[11px] hover:bg-rose-100 transition">🔥 ناري</button>
+              <button type="button" data-led-mode="custom" class="led-mode-chip py-1.5 px-2 rounded-lg border border-purple-300 bg-purple-50 text-purple-900 font-bold text-[11px] hover:bg-purple-100 transition">🎨 لون مخصص</button>
+            </div>
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-amber-200/60">
+              <label for="ledBorderCustomColorInput" class="text-xs font-bold text-slate-700">اختر لون النشرة المخصص بحرية:</label>
+              <input type="color" id="ledBorderCustomColorInput" value="#00f2fe" class="w-14 h-8 rounded-lg border border-slate-300 cursor-pointer bg-white p-0.5" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1527,27 +1758,37 @@
           </form>
         </div>
 
-        <!-- 2. بطاقة النسخ الاحتياطي واسترجاع الملفات -->
+        <!-- 2. بطاقة النسخ الاحتياطي الشامل واسترجاع الملفات (JSON + PDF) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-5 space-y-4">
-          <h2 class="text-sm sm:text-base font-extrabold text-slate-900 border-b border-slate-100 pb-2.5">النسخ الاحتياطي للبيانات (ملف)</h2>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900">النسخ الاحتياطي الكامل والاسترجاع (JSON و PDF)</h2>
+            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">استرجاع 100% من البيانات ✓</span>
+          </div>
           <p class="text-xs text-slate-600 leading-relaxed">
-            يمكنك حفظ كل بياناتك (الأجهزة، مراكز الجملة، الديون، والمصاريف) على شكل ملف في موبايلك أو حاسبتك، مع عدم كتابة تفاصيل حصتك ونسب التقسيم (النصف والربع والثلث) داخل الملف المصدّر للخصوصية.
+            احفظ نسخة احتياطية كاملة لكل بياناتك (الأجهزة، القطع المتعددة، مراكز الجملة، الديون، المصاريف، ورصيد جيبك الكامل) بصيغة <strong>JSON</strong> أو بصيغة <strong>PDF</strong> مع خلفية مائية لتاريخ إصدار الملف (يوم/شهر/سنة)، واسترجعها بالكامل من أي من الصيغتين عند النقل لأي رابط أو دومين جديد.
           </p>
 
           <div class="space-y-2.5">
-            <!-- زر تنزيل ملف النسخة الاحتياطية -->
+            <!-- زر تنزيل ملف النسخة الاحتياطية JSON -->
             <button type="button" id="exportBackupFileBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md shadow-indigo-500/15 transition flex items-center justify-center gap-2 text-xs sm:text-sm">
               <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
               <span>حفظ نسخة احتياطية الآن (تنزيل ملف)</span>
             </button>
 
-            <!-- زر استرجاع نسخة احتياطية من ملف -->
+            <!-- زر تنزيل نسخة احتياطية كاملة بصيغة PDF (قابلة للطباعة وقابلة للاسترجاع أيضاً) -->
+            <button type="button" id="exportFullBackupPdfBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-extrabold py-3 px-4 rounded-xl shadow-md shadow-amber-500/15 transition flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>حفظ نسخة احتياطية كاملة بصيغة (PDF) مع خلفية التاريخ</span>
+            </button>
+
+            <!-- زر استرجاع نسخة احتياطية من ملف (يدعم JSON و PDF) -->
             <div>
               <label for="importBackupFileInput" class="w-full cursor-pointer bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-300 text-emerald-900 font-extrabold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs sm:text-sm">
                 <svg width="18" height="18" class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 <span>استرجاع نسخة احتياطية من ملف محفوظ</span>
               </label>
-              <input type="file" id="importBackupFileInput" accept=".json,application/json" class="hidden" />
+              <p class="text-[11px] text-emerald-700 font-semibold text-center mt-1">يدعم الاستعادة المباشرة من ملفات (.JSON) ومن ملفات النسخ الاحتياطي (.PDF)</p>
+              <input type="file" id="importBackupFileInput" accept=".json,.pdf,.html,application/json,application/pdf,text/html" class="hidden" />
             </div>
           </div>
 
@@ -1557,6 +1798,79 @@
             <button type="button" id="resetAllDataBtn" class="text-xs font-bold text-rose-600 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition">
               مسح جميع البيانات
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================== -->
+      <!-- خيار "معلومات عن الموقع" (شرح كامل ومفصل عن النظام)    -->
+      <!-- ==================================================== -->
+      <div class="bg-white rounded-2xl shadow-sm border-2 border-indigo-200/90 p-4 sm:p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg font-extrabold shrink-0">
+              ℹ️
+            </div>
+            <div>
+              <h2 class="text-sm sm:text-base font-extrabold text-slate-900">معلومات عن الموقع (دليل وشرح كامل للنظام)</h2>
+              <p class="text-xs text-slate-500">تعرف على كافة أقسام الموقع، طريقة عمل الحسابات، ومميزات النسخ الاحتياطي والجمالية</p>
+            </div>
+          </div>
+          <button type="button" id="toggleAboutWebsiteBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <span id="toggleAboutWebsiteBtnText">عرض الشرح الكامل للموقع 📖</span>
+          </button>
+        </div>
+
+        <div id="aboutWebsiteContentBox" class="hidden pt-3 border-t border-slate-100 space-y-4 text-xs sm:text-sm leading-relaxed text-slate-700">
+          <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-3.5">
+            <h3 class="font-extrabold text-indigo-950 text-sm mb-1">🌟 نبذة عامة عن الموقع</h3>
+            <p>
+              تم تصميم <strong>نظام إدارة صيانة الموبايلات والحسابات</strong> خصيصاً لإدارة عمل فني الصيانة بشكل متكامل ودقيق جداً على الموبايل (أندرويد و آيفون) وعلى الحاسوب، مع حفظ فوري وتلقائي للبيانات داخل المتصفح ودعم كامل للعمل بدون إنترنت وتصدير التقارير والنسخ الاحتياطية.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-1.5">
+              <h4 class="font-extrabold text-slate-900">1️⃣ قسم جهاز جديد (تسجيل الأجهزة وتعدد القطع)</h4>
+              <p class="text-xs text-slate-600">
+                • تسجيل نوع الموبايل، العطل، تاريخ التصليح، وسعر التصليح الكامل.<br/>
+                • <strong>ميزة تعدد قطع الغيار والمراكز:</strong> عند اختيار أكثر من قطعة لنفس الجهاز (مثلاً: شاشة + ظهر)، يفتح النظام بطاقة مستقلة لكل قطعة لتحديد سعرها، ومن أي مركز جملة اشتريتها (مثلاً الشاشة من المحمود بالدين، والظهر من راكان نقد)، ليُحسب الصافي وتُسجّل كل قطعة في حساب مركزها تلقائياً.<br/>
+                • فلترة سجل الأجهزة لعرض (أجهزة اليوم، يوم محدد، فترة من/إلى، أو كل الأجهزة).
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-1.5">
+              <h4 class="font-extrabold text-slate-900">2️⃣ قسم مراكز الجملة والديون</h4>
+              <p class="text-xs text-slate-600">
+                • إضافة مراكز الجملة التي تتعامل معها ومتابعة إجمالي المشتريات والمدفوع والدين المتبقي لكل مركز.<br/>
+                • عرض كشف تفصيلي لكل قطعة مسحوبة من المركز مع إمكانية تغيير حالتها في أي وقت بين (بالدين: لم يتم التسديد / تم التسديد ✓ / شراء نقد) أو تسجيل دفعة تسديد نقدية عامة.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-1.5">
+              <h4 class="font-extrabold text-slate-900">3️⃣ قسم الأرباح والخسائر وتحديد الحصة</h4>
+              <p class="text-xs text-slate-600">
+                • يحسب صافي ربح المحل تلقائياً ليوم محدد أو لفترة بين تاريخين بعد خصم أسعار القطع ومصاريف المحل.<br/>
+                • تحديد حصتك بضغطة زر أو كتابة الرقم يدوياً واعتمادها لتتحول مباشرة إلى قسم (جيبي).<br/>
+                • تحميل تقرير <strong>PDF خاص بالمحل</strong> (خالٍ تماماً من ذكر حصتك أو النسب للخصوصية) أو تقرير <strong>PDF خاص بأرباحك أنت</strong>، وكلاهما مزود بخلفية مائية لتاريخ إصدار الملف (يوم/شهر/سنة).
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 space-y-1.5">
+              <h4 class="font-extrabold text-slate-900">4️⃣ قسم جيبي والمصاريف الخاصة</h4>
+              <p class="text-xs text-slate-600">
+                • يعرض الفلوس الفعلية الموجودة بجيبك الآن، ومجموع ربحك المعتمد، وإجمالي مصاريفك.<br/>
+                • <strong>قسم فرعي (مصاريف خاصة):</strong> يمكنك تسجيل أي مصرف وتحديد هل يُخصم من <strong>أرباحك الموجودة بجيبك</strong> (مصروف شخصي) أم يُخصم من <strong>صافي أرباح المحل الكلية</strong> قبل تقسيم الحصة.
+              </p>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-1.5">
+            <h4 class="font-extrabold text-emerald-950">5️⃣ النسخ الاحتياطي (JSON و PDF) وإضافات الجمالية والـ VIP</h4>
+            <p class="text-xs text-slate-700">
+              • <strong>نسخ احتياطي واسترجاع مزدوج:</strong> يمكنك تنزيل نسخة احتياطية كاملة بصيغة <code>JSON</code> أو بصيغة <code>PDF</code> واسترجاع كافة بياناتك (100% شاملة الأجهزة والديون وحصص جيبك) من أي من الصيغتين عند فتح الموقع على هاتف جديد أو دومين جديد.<br/>
+              • <strong>الأيقونة المربعة المتحركة والنشرة الضوئية:</strong> يمكنك تفعيل أيقونة مربعة بصورة متحركة (GIF) وسحبها لأي مكان بالشاشة لتبقى ثابتة فيه، وتفعيل نشرة ضوئية ملونة متحركة تدور حول إطار الواجهة مع تحكم كامل بالألوان.
+            </p>
           </div>
         </div>
       </div>
@@ -1668,6 +1982,74 @@
         return `${y}-${m}-${d}`;
       }
 
+      // Format date as DD / MM / YYYY for background watermark inside exported files
+      function getIssueDateDMY(isoStr) {
+        if (isoStr && /^\d{4}-\d{2}-\d{2}$/.test(isoStr)) {
+          const [y, m, d] = isoStr.split('-');
+          return `${d} / ${m} / ${y}`;
+        }
+        const now = new Date();
+        const d = String(now.getDate()).padStart(2, '0');
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const y = now.getFullYear();
+        return `${d} / ${m} / ${y}`;
+      }
+
+      // Built-in animated SVG Data URIs for the Floating Draggable Square Widget
+      const WIDGET_ANIMATED_PRESETS = {
+        pulse: `data:image/svg+xml;utf8,` + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f59e0b"/>
+                <stop offset="50%" stop-color="#ec4899"/>
+                <stop offset="100%" stop-color="#6366f1"/>
+              </linearGradient>
+            </defs>
+            <rect width="120" height="120" rx="24" fill="#0f172a"/>
+            <circle cx="60" cy="60" r="38" fill="none" stroke="url(#g1)" stroke-width="5" stroke-dasharray="28 12">
+              <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="60" cy="60" r="26" fill="url(#g1)" opacity="0.25">
+              <animate attributeName="r" values="22;32;22" dur="1.8s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.18;0.45;0.18" dur="1.8s" repeatCount="indefinite"/>
+            </circle>
+            <path d="M64 30 L42 64 H58 L54 90 L78 56 H62 Z" fill="#fbbf24">
+              <animate attributeName="opacity" values="1;0.6;1" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        `),
+        gear: `data:image/svg+xml;utf8,` + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+            <rect width="120" height="120" rx="24" fill="#1e1b4b"/>
+            <g>
+              <circle cx="60" cy="60" r="34" fill="none" stroke="#38bdf8" stroke-width="6" stroke-dasharray="14 8"/>
+              <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="4s" repeatCount="indefinite"/>
+            </g>
+            <g>
+              <circle cx="60" cy="60" r="22" fill="none" stroke="#fbbf24" stroke-width="4" stroke-dasharray="10 6"/>
+              <animateTransform attributeName="transform" type="rotate" from="360 60 60" to="0 60 60" dur="2.8s" repeatCount="indefinite"/>
+            </g>
+            <rect x="46" y="38" width="28" height="44" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+            <circle cx="60" cy="76" r="2.5" fill="#0284c7"/>
+          </svg>
+        `),
+        radar: `data:image/svg+xml;utf8,` + encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+            <rect width="120" height="120" rx="24" fill="#090d16"/>
+            <circle cx="60" cy="60" r="42" fill="none" stroke="#10b981" stroke-width="2" opacity="0.4"/>
+            <circle cx="60" cy="60" r="28" fill="none" stroke="#06b6d4" stroke-width="2" opacity="0.6"/>
+            <g>
+              <path d="M60 60 L60 16 A44 44 0 0 1 102 60 Z" fill="#10b981" opacity="0.38"/>
+              <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="2.2s" repeatCount="indefinite"/>
+            </g>
+            <circle cx="60" cy="60" r="7" fill="#34d399">
+              <animate attributeName="r" values="5;9;5" dur="1.4s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        `)
+      };
+
       const defaultAppearance = {
         enableVipTheme: false,
         vipColor: 'gold',
@@ -1681,7 +2063,17 @@
         enableConfetti: false,
         enableRankBadge: false,
         enableCustomFont: false,
-        fontFamily: 'Cairo'
+        fontFamily: 'Cairo',
+        // New Feature: Floating Draggable Square Animated Widget
+        enableFloatingWidget: false,
+        floatingWidgetImg: '',
+        floatingWidgetPreset: 'pulse',
+        floatingWidgetSize: 68,
+        floatingWidgetPos: { x: 16, y: 86 },
+        // New Feature: Animated Border Light Marquee (نشرة ضوئية حول الواجهة)
+        enableLedBorder: false,
+        ledBorderMode: 'rainbow',
+        ledBorderCustomColor: '#00f2fe'
       };
 
       const defaultState = {
@@ -1701,9 +2093,88 @@
         deposits: []
       };
 
+      // Encode / Decode UTF-8 JSON to Base64 for lossless backup restoration (JSON & PDF)
+      function encodeBackupPayloadBase64(obj) {
+        try {
+          const jsonStr = JSON.stringify(obj);
+          const utf8Bytes = encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+            String.fromCharCode(parseInt(p1, 16))
+          );
+          return btoa(utf8Bytes);
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function decodeBackupPayloadBase64(b64Str) {
+        try {
+          const binary = atob(b64Str.trim());
+          const pctEncoded = binary
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('');
+          return JSON.parse(decodeURIComponent(pctEncoded));
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // Normalize any device so multi-part and single-part devices both have clean partsItems
+      function getDevicePartsItems(device) {
+        if (!device || !device.needsParts) return [];
+        if (Array.isArray(device.partsItems) && device.partsItems.length > 0) {
+          return device.partsItems.map((it, idx) => ({
+            itemId: it.itemId || `pi_${device.id}_${idx}`,
+            chipKey: it.chipKey || it.partName || 'قطعة',
+            partName: it.partName || it.chipKey || 'قطعة',
+            cost: Number(it.cost) || 0,
+            wholesalerId: it.wholesalerId || device.wholesalerId || '',
+            payType: it.payType === 'debt' ? 'debt' : 'cash',
+            debtSettled: Boolean(it.debtSettled)
+          }));
+        }
+        return [
+          {
+            itemId: `pi_${device.id}_0`,
+            chipKey: device.partName || 'قطعة',
+            partName: device.partName || 'قطعة',
+            cost: Number(device.partCost) || 0,
+            wholesalerId: device.wholesalerId || '',
+            payType: device.payType === 'debt' ? 'debt' : 'cash',
+            debtSettled: Boolean(device.debtSettled)
+          }
+        ];
+      }
+
+      function syncDeviceLegacySummaryFromParts(device) {
+        if (!device || !device.needsParts) {
+          if (device) {
+            device.partsItems = [];
+            device.partName = '';
+            device.partCost = 0;
+            device.wholesalerId = '';
+            device.payType = 'cash';
+            device.debtSettled = false;
+            device.netProfit = (Number(device.repairPrice) || 0);
+          }
+          return;
+        }
+        const items = getDevicePartsItems(device);
+        device.partsItems = items;
+        device.partName = items.map(i => i.partName).join(' + ');
+        device.partCost = items.reduce((sum, i) => sum + (Number(i.cost) || 0), 0);
+        device.wholesalerId = items[0] ? items[0].wholesalerId : '';
+        const hasUnpaidDebt = items.some(i => i.payType === 'debt' && !i.debtSettled);
+        const hasAnyDebt = items.some(i => i.payType === 'debt');
+        device.payType = hasAnyDebt ? 'debt' : 'cash';
+        device.debtSettled = hasAnyDebt ? !hasUnpaidDebt : false;
+        device.netProfit = (Number(device.repairPrice) || 0) - device.partCost;
+      }
+
       let state = loadState();
       let currentNeedsParts = false;
       let selectedPartsSet = new Set();
+      let currentPartsConfigMap = {}; // keyed by chip name ('شاشة', 'ظهر', etc.)
       let currentPayType = 'cash';
       let currentExpenseDeductFrom = 'pocket'; // 'pocket' | 'shop'
       let activeWholesalerDetailId = null;
@@ -1714,25 +2185,52 @@
       let lastGeneratedReportTitle = '';
       let audioCtx = null;
 
+      function normalizeLoadedStateObject(parsed, fallbackCurrentState) {
+        const base = fallbackCurrentState || defaultState;
+        let tokenData = null;
+        if (parsed && typeof parsed._restoreToken === 'string' && parsed._restoreToken) {
+          tokenData = decodeBackupPayloadBase64(parsed._restoreToken);
+        }
+        const merged = {
+          ...(tokenData && typeof tokenData === 'object' ? tokenData : {}),
+          ...(parsed && typeof parsed === 'object' ? parsed : {})
+        };
+
+        const rawDevices = Array.isArray(merged.devices) ? merged.devices : [];
+        rawDevices.forEach(d => syncDeviceLegacySummaryFromParts(d));
+
+        const restoredDailyShares =
+          (merged.dailyShares && typeof merged.dailyShares === 'object' && Object.keys(merged.dailyShares).length > 0)
+            ? merged.dailyShares
+            : (tokenData && tokenData.dailyShares && typeof tokenData.dailyShares === 'object' && Object.keys(tokenData.dailyShares).length > 0)
+            ? tokenData.dailyShares
+            : (base.dailyShares || {});
+
+        return {
+          theme: merged.theme === 'dark' ? 'dark' : (base.theme || 'light'),
+          appearance: {
+            ...defaultAppearance,
+            ...(base.appearance || {}),
+            ...(merged.appearance && typeof merged.appearance === 'object' ? merged.appearance : {})
+          },
+          profile: merged.profile || base.profile || { name: 'أيمن', avatar: '' },
+          wholesalers: Array.isArray(merged.wholesalers) && merged.wholesalers.length > 0
+            ? merged.wholesalers
+            : (Array.isArray(base.wholesalers) && base.wholesalers.length > 0 ? base.wholesalers : defaultState.wholesalers),
+          devices: rawDevices,
+          debtPayments: Array.isArray(merged.debtPayments) ? merged.debtPayments : [],
+          dailyShares: restoredDailyShares,
+          expenses: Array.isArray(merged.expenses) ? merged.expenses : [],
+          deposits: Array.isArray(merged.deposits) ? merged.deposits : []
+        };
+      }
+
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) return JSON.parse(JSON.stringify(defaultState));
           const parsed = JSON.parse(raw);
-          return {
-            theme: parsed.theme === 'dark' ? 'dark' : 'light',
-            appearance: {
-              ...defaultAppearance,
-              ...(parsed.appearance && typeof parsed.appearance === 'object' ? parsed.appearance : {})
-            },
-            profile: parsed.profile || { name: 'أيمن', avatar: '' },
-            wholesalers: Array.isArray(parsed.wholesalers) ? parsed.wholesalers : [],
-            devices: Array.isArray(parsed.devices) ? parsed.devices : [],
-            debtPayments: Array.isArray(parsed.debtPayments) ? parsed.debtPayments : [],
-            dailyShares: parsed.dailyShares && typeof parsed.dailyShares === 'object' ? parsed.dailyShares : {},
-            expenses: Array.isArray(parsed.expenses) ? parsed.expenses : [],
-            deposits: Array.isArray(parsed.deposits) ? parsed.deposits : []
-          };
+          return normalizeLoadedStateObject(parsed, defaultState);
         } catch (err) {
           return JSON.parse(JSON.stringify(defaultState));
         }
@@ -1742,7 +2240,7 @@
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         } catch (err) {
-          showToast('تنبيه: الذاكرة ممتلئة، حاول تقليل حجم الصورة الشخصية', 'error');
+          showToast('تنبيه: الذاكرة ممتلئة، حاول تقليل حجم الصورة المرفوعة', 'error');
         }
       }
 
@@ -1767,7 +2265,7 @@
           el.style.opacity = '0';
           el.style.transform = 'translateY(-8px)';
           setTimeout(() => el.remove(), 250);
-        }, 2600);
+        }, 2800);
       }
 
       function openConfirmModal(title, message, onConfirm) {
@@ -1789,6 +2287,30 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#039;');
+      }
+
+      // ==========================================
+      // WATERMARK HELPER FOR ALL EXPORTED REPORTS
+      // ==========================================
+      function wrapWithDateWatermark(innerHtml, issueDateDMY) {
+        const dateLabel = issueDateDMY || getIssueDateDMY();
+        const stamps = Array.from({ length: 10 }, () =>
+          `<div class="report-watermark-stamp">تاريخ الإصدار: ${escapeHtml(dateLabel)}</div>`
+        ).join('');
+        return `
+          <div class="report-watermark-wrap" style="position:relative;overflow:hidden;background:#ffffff;padding:6px;">
+            <div class="report-watermark-layer" aria-hidden="true">
+              ${stamps}
+            </div>
+            <div class="report-foreground-content" style="position:relative;z-index:1;">
+              ${innerHtml}
+              <div style="margin-top:14px;padding-top:8px;border-top:1px dashed #cbd5e1;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#64748b;">
+                <span>تاريخ إصدار الملف: <strong>${escapeHtml(dateLabel)}</strong></span>
+                <span>نظام إدارة صيانة الموبايلات والحسابات</span>
+              </div>
+            </div>
+          </div>
+        `;
       }
 
       // ==========================================
@@ -1814,7 +2336,6 @@
         return devicesNet - shopExp;
       }
 
-      // Sync dynamic daily shares when devices or shop expenses change on a day saved with a ratio
       function syncDailyShareForDate(dateStr) {
         const entry = state.dailyShares[dateStr];
         if (!entry) return;
@@ -1916,7 +2437,7 @@
       }
 
       // ==========================================
-      // VIP APPEARANCE & THEME APPLICATION
+      // VIP APPEARANCE, FLOATING WIDGET & LED BORDER
       // ==========================================
       function setSwitchButtonState(btnId, isOn) {
         const btn = document.getElementById(btnId);
@@ -1930,6 +2451,84 @@
         if (count >= 50) return `ماستر صيانة محترف 🔥 (${count} جهاز)`;
         if (count >= 15) return `خبير صيانة معتمد 🏆 (${count} جهاز)`;
         return `فني صيانة متألق ⭐ (${count} جهاز)`;
+      }
+
+      function applyLedBorderStyle(ap) {
+        const marqueeEl = document.getElementById('interfaceLedMarquee');
+        if (!marqueeEl) return;
+        const enabled = Boolean(ap.enableLedBorder);
+        marqueeEl.classList.toggle('hidden', !enabled);
+        document.body.classList.toggle('led-border-active', enabled);
+
+        const mode = ap.ledBorderMode || 'rainbow';
+        const customHex = ap.ledBorderCustomColor || '#00f2fe';
+        let gradientCss = '';
+        let glowCss = 'rgba(99, 102, 241, 0.55)';
+
+        if (mode === 'rainbow') {
+          gradientCss = 'conic-gradient(from 0deg, #ff0055, #ff9900, #ffee00, #00ff88, #00ccff, #7700ff, #ff00cc, #ff0055)';
+          glowCss = 'rgba(56, 189, 248, 0.55)';
+        } else if (mode === 'gold') {
+          gradientCss = 'conic-gradient(from 0deg, #fbbf24, #d97706, #fef08a, #b45309, #fbbf24)';
+          glowCss = 'rgba(245, 158, 11, 0.6)';
+        } else if (mode === 'cyan') {
+          gradientCss = 'conic-gradient(from 0deg, #00f2fe, #0284c7, #bae6fd, #0369a1, #00f2fe)';
+          glowCss = 'rgba(56, 189, 248, 0.65)';
+        } else if (mode === 'emerald') {
+          gradientCss = 'conic-gradient(from 0deg, #10b981, #047857, #a7f3d0, #059669, #10b981)';
+          glowCss = 'rgba(16, 185, 129, 0.6)';
+        } else if (mode === 'crimson') {
+          gradientCss = 'conic-gradient(from 0deg, #f43f5e, #be123c, #fecdd3, #e11d48, #f43f5e)';
+          glowCss = 'rgba(244, 63, 94, 0.6)';
+        } else {
+          gradientCss = `conic-gradient(from 0deg, ${customHex}, #ffffff, ${customHex}, #0f172a, ${customHex})`;
+          glowCss = customHex;
+        }
+
+        document.documentElement.style.setProperty('--led-border-gradient', gradientCss);
+        document.documentElement.style.setProperty('--led-border-glow', glowCss);
+
+        document.querySelectorAll('.led-mode-chip').forEach(chip => {
+          const m = chip.getAttribute('data-led-mode');
+          chip.style.outline = (enabled && m === mode) ? '2px solid #0f172a' : 'none';
+        });
+
+        const colorInput = document.getElementById('ledBorderCustomColorInput');
+        if (colorInput && document.activeElement !== colorInput) {
+          colorInput.value = customHex;
+        }
+      }
+
+      function applyFloatingWidgetStyle(ap) {
+        const widgetEl = document.getElementById('floatingSquareWidget');
+        const imgEl = document.getElementById('floatingSquareWidgetImg');
+        if (!widgetEl || !imgEl) return;
+
+        const enabled = Boolean(ap.enableFloatingWidget);
+        widgetEl.classList.toggle('hidden', !enabled);
+
+        const size = Number(ap.floatingWidgetSize) || 68;
+        widgetEl.style.width = `${size}px`;
+        widgetEl.style.height = `${size}px`;
+
+        const sizeSelect = document.getElementById('floatingWidgetSizeSelect');
+        if (sizeSelect) sizeSelect.value = String(size);
+
+        const src = ap.floatingWidgetImg
+          ? ap.floatingWidgetImg
+          : (WIDGET_ANIMATED_PRESETS[ap.floatingWidgetPreset || 'pulse'] || WIDGET_ANIMATED_PRESETS.pulse);
+        if (imgEl.getAttribute('src') !== src) {
+          imgEl.setAttribute('src', src);
+        }
+
+        const pos = ap.floatingWidgetPos || { x: 16, y: 86 };
+        const maxX = Math.max(8, (window.innerWidth || 360) - size - 8);
+        const maxY = Math.max(8, (window.innerHeight || 640) - size - 8);
+        const clampedX = Math.min(Math.max(6, Number(pos.x) || 16), maxX);
+        const clampedY = Math.min(Math.max(6, Number(pos.y) || 86), maxY);
+
+        widgetEl.style.left = `${clampedX}px`;
+        widgetEl.style.top = `${clampedY}px`;
       }
 
       function applyAppearanceSettings() {
@@ -2012,6 +2611,10 @@
         const fontSelect = document.getElementById('vipFontSelect');
         if (fontSelect) fontSelect.value = ap.fontFamily || 'Cairo';
 
+        // 7 & 8. Floating Square Animated Widget & LED Border Marquee
+        applyFloatingWidgetStyle(ap);
+        applyLedBorderStyle(ap);
+
         // Sync Toggle Switch Buttons UI
         setSwitchButtonState('toggleVipThemeBtn', ap.enableVipTheme);
         setSwitchButtonState('toggleNeonGlowBtn', ap.enableNeonGlow);
@@ -2023,6 +2626,8 @@
         setSwitchButtonState('toggleConfettiBtn', ap.enableConfetti);
         setSwitchButtonState('toggleRankBadgeBtn', ap.enableRankBadge);
         setSwitchButtonState('toggleCustomFontBtn', ap.enableCustomFont);
+        setSwitchButtonState('toggleFloatingWidgetBtn', ap.enableFloatingWidget);
+        setSwitchButtonState('toggleLedBorderBtn', ap.enableLedBorder);
       }
 
       // ==========================================
@@ -2130,10 +2735,11 @@
 
       // ==========================================
       // FEATURE 2A: SHOP PDF / PRINT REPORT
-      // (EXCLUDES ANY SHARE / RATIO / 50% / 33% / 25% INFO)
+      // (EXCLUDES ANY SHARE / RATIO / 50% / 33% / 25% INFO + INCLUDES DATE WATERMARK)
       // ==========================================
       function openPdfReportModal(devicesList, reportTitleLabel, shopExpensesList = []) {
         const userName = (state.profile && state.profile.name) ? state.profile.name : 'أيمن';
+        const issueDateDMY = getIssueDateDMY();
         let totalRev = 0;
         let totalParts = 0;
         let totalDevicesNet = 0;
@@ -2143,33 +2749,37 @@
 
         devicesList.forEach(d => {
           const rev = Number(d.repairPrice) || 0;
-          const cost = d.needsParts ? (Number(d.partCost) || 0) : 0;
+          const items = getDevicePartsItems(d);
+          const cost = d.needsParts ? items.reduce((s, it) => s + (Number(it.cost) || 0), 0) : 0;
           const net = Number(d.netProfit) || 0;
           totalRev += rev;
           totalParts += cost;
           totalDevicesNet += net;
 
           if (d.needsParts) {
-            if (d.payType === 'debt' && !d.debtSettled) {
-              totalDebtParts += cost;
-            } else {
-              totalCashParts += cost;
-            }
-          }
-
-          if (d.needsParts && d.wholesalerId) {
-            const wObj = state.wholesalers.find(w => w.id === d.wholesalerId);
-            const wName = wObj ? wObj.name : 'مركز جملة';
-            if (!byWholesaler[wName]) {
-              byWholesaler[wName] = { name: wName, count: 0, cashTotal: 0, debtTotal: 0, items: [] };
-            }
-            byWholesaler[wName].count += 1;
-            if (d.payType === 'debt' && !d.debtSettled) {
-              byWholesaler[wName].debtTotal += cost;
-            } else {
-              byWholesaler[wName].cashTotal += cost;
-            }
-            byWholesaler[wName].items.push(`${d.partName} ${d.model} (${cost.toLocaleString('en-US')})`);
+            items.forEach(it => {
+              const c = Number(it.cost) || 0;
+              if (it.payType === 'debt' && !it.debtSettled) {
+                totalDebtParts += c;
+              } else {
+                totalCashParts += c;
+              }
+              if (it.wholesalerId) {
+                const wObj = state.wholesalers.find(w => w.id === it.wholesalerId);
+                const wName = wObj ? wObj.name : 'مركز جملة';
+                if (!byWholesaler[wName]) {
+                  byWholesaler[wName] = { name: wName, count: 0, cashTotal: 0, debtTotal: 0, items: [] };
+                }
+                byWholesaler[wName].count += 1;
+                if (it.payType === 'debt' && !it.debtSettled) {
+                  byWholesaler[wName].debtTotal += c;
+                } else {
+                  byWholesaler[wName].cashTotal += c;
+                }
+                const payTag = it.payType === 'cash' ? 'نقد' : (it.debtSettled ? 'مسدد' : 'بالدين');
+                byWholesaler[wName].items.push(`${it.partName} ${d.model} (${c.toLocaleString('en-US')} - ${payTag})`);
+              }
+            });
           }
         });
 
@@ -2179,20 +2789,27 @@
         const deviceRows = devicesList.length === 0
           ? `<tr><td colspan="9" style="text-align:center;padding:16px;color:#64748b;">لا توجد أجهزة مسجلة في هذه الفترة</td></tr>`
           : devicesList.map((d, idx) => {
-              const wObj = state.wholesalers.find(w => w.id === d.wholesalerId);
-              const wName = d.needsParts ? (wObj ? wObj.name : '—') : '—';
-              const partLabel = d.needsParts ? d.partName : 'بدون قطعة';
-              const payLabel = !d.needsParts
-                ? '—'
-                : (d.payType === 'cash' ? 'نقد' : (d.debtSettled ? 'دين مسدد' : 'بالدين'));
+              const items = getDevicePartsItems(d);
+              const partLabel = d.needsParts
+                ? items.map(it => `${it.partName} (${formatCurrency(it.cost)})`).join(' + ')
+                : 'بدون قطعة';
+              const wNames = d.needsParts
+                ? items.map(it => {
+                    const wObj = state.wholesalers.find(w => w.id === it.wholesalerId);
+                    return wObj ? wObj.name : '—';
+                  }).join(' + ')
+                : '—';
+              const payLabels = d.needsParts
+                ? items.map(it => it.payType === 'cash' ? 'نقد' : (it.debtSettled ? 'دين مسدد' : 'بالدين')).join(' + ')
+                : '—';
               return `
                 <tr>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${idx + 1}</td>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:700;">${escapeHtml(d.model)}</td>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(d.fault)}</td>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(partLabel)}</td>
-                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(wName)}</td>
-                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(payLabel)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(wNames)}</td>
+                  <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${escapeHtml(payLabels)}</td>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${formatCurrency(d.needsParts ? d.partCost : 0)}</td>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;">${formatCurrency(d.repairPrice)}</td>
                   <td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:800;color:#047857;">${formatCurrency(d.netProfit)}</td>
@@ -2239,11 +2856,13 @@
           `
           : '';
 
-        // Clean summary WITHOUT personal share or 50% / 33% / 25% splits
-        const reportHtml = `
-          <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;background:#ffffff;">
+        const innerBody = `
+          <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;">
             <div style="background:#1e3a8a;color:#ffffff;padding:16px 20px;border-radius:12px;margin-bottom:16px;">
-              <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير صيانة الأجهزة وأرباح المحل — ${escapeHtml(reportTitleLabel)}</h2>
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير صيانة الأجهزة وأرباح المحل — ${escapeHtml(reportTitleLabel)}</h2>
+                <span style="background:rgba(255,255,255,0.18);padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">تاريخ الإصدار: ${escapeHtml(issueDateDMY)}</span>
+              </div>
               <p style="margin:0;font-size:13px;color:#e2e8f0;">الفني المسؤول: ${escapeHtml(userName)} &nbsp;|&nbsp; عدد الأجهزة: ${devicesList.length} أجهزة &nbsp;|&nbsp; صافي الربح الكلي للمحل: ${formatCurrency(finalShopNet)}</p>
             </div>
 
@@ -2257,7 +2876,7 @@
                   <th style="padding:8px;">القطعة</th>
                   <th style="padding:8px;">مركز الجملة</th>
                   <th style="padding:8px;">الدفع</th>
-                  <th style="padding:8px;">سعر القطعة</th>
+                  <th style="padding:8px;">سعر القطع</th>
                   <th style="padding:8px;">سعر التصليح</th>
                   <th style="padding:8px;">الربح الصافي</th>
                 </tr>
@@ -2306,6 +2925,7 @@
           </div>
         `;
 
+        const reportHtml = wrapWithDateWatermark(innerBody, issueDateDMY);
         lastGeneratedReportHtml = reportHtml;
         lastGeneratedReportTitle = reportTitleLabel;
         document.getElementById('pdfReportContentArea').innerHTML = reportHtml;
@@ -2314,12 +2934,11 @@
 
       // ==========================================
       // FEATURE 2B: PERSONAL MY PROFITS PDF REPORT
-      // (تقرير PDF لأرباحي الخاصة خلال اليوم أو الفترة المحددة)
       // ==========================================
       function openMyPersonalProfitsPdfModal(startDate, endDate, reportTitleLabel) {
         const userName = (state.profile && state.profile.name) ? state.profile.name : 'أيمن';
+        const issueDateDMY = getIssueDateDMY();
 
-        // Collect all dates within [startDate, endDate] that have devices, shop expenses, or approved shares
         const dateSet = new Set();
         state.devices.forEach(d => {
           if (d.date >= startDate && d.date <= endDate) dateSet.add(d.date);
@@ -2346,7 +2965,6 @@
               const dayShopNet = getDayNetProfitAfterShopExpenses(dt);
               const shareEntry = state.dailyShares[dt];
               const isApproved = shareEntry !== undefined;
-              // If approved, use approved myShare; if single day currently previewed, use input or 0
               const myShareVal = isApproved
                 ? (Number(shareEntry.myShare) || 0)
                 : (profitFilterMode === 'single' && dt === startDate ? (Number(document.getElementById('myShareAmountInput').value) || 0) : 0);
@@ -2372,7 +2990,6 @@
               `;
             }).join('');
 
-        // Personal pocket expenses in the same period
         const myPocketExpensesInPeriod = state.expenses.filter(
           ex => (ex.deductFrom || 'pocket') === 'pocket' && ex.date >= startDate && ex.date <= endDate
         );
@@ -2405,10 +3022,13 @@
           `
           : '';
 
-        const reportHtml = `
-          <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;background:#ffffff;">
+        const innerBody = `
+          <div style="font-family:'Cairo','Tajawal',sans-serif;direction:rtl;color:#0f172a;">
             <div style="background:#047857;color:#ffffff;padding:16px 20px;border-radius:12px;margin-bottom:16px;">
-              <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير أرباحي الخاصة — ${escapeHtml(reportTitleLabel)}</h2>
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <h2 style="margin:0 0 6px 0;font-size:20px;font-weight:800;">تقرير أرباحي الخاصة — ${escapeHtml(reportTitleLabel)}</h2>
+                <span style="background:rgba(255,255,255,0.2);padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700;">تاريخ الإصدار: ${escapeHtml(issueDateDMY)}</span>
+              </div>
               <p style="margin:0;font-size:13px;color:#d1fae5;">الاسم: ${escapeHtml(userName)} &nbsp;|&nbsp; إجمالي الأجهزة: ${totalDevicesCount} أجهزة &nbsp;|&nbsp; مجموع ربحي الخاص: ${formatCurrency(totalMyShareAll)}</p>
             </div>
 
@@ -2421,7 +3041,7 @@
                   <th style="padding:8px;">الأجهزة المصلحة</th>
                   <th style="padding:8px;">مصاريف المحل</th>
                   <th style="padding:8px;">صافي ربح المحل</th>
-                  <th style="padding:8px;">ربحي الخاص (حصتي)</th>
+                  <th style="padding:8px;">ربحي الخاص</th>
                 </tr>
               </thead>
               <tbody>
@@ -2441,17 +3061,106 @@
 
             <div style="border-top:1px solid #cbd5e1;padding-top:12px;font-size:13px;line-height:1.8;">
               <strong style="color:#047857;display:block;margin-bottom:4px;">خلاصة أرباحي الخاصة للفترة:</strong>
-              <div>• <strong>إجمالي ربحي الخاص (حصتي من الصيانة):</strong> <strong>${formatCurrency(totalMyShareAll)}</strong></div>
+              <div>• <strong>إجمالي ربحي الخاص من الصيانة:</strong> <strong>${formatCurrency(totalMyShareAll)}</strong></div>
               <div>• <strong>إجمالي مصاريفي الشخصية في هذه الفترة:</strong> ${formatCurrency(totalMyPocketExp)}</div>
               <div>• <strong>الصافي المتبقي لي من أرباح هذه الفترة:</strong> <strong style="color:#047857;">${formatCurrency(netMyProfitAfterPersonalExp)}</strong></div>
             </div>
           </div>
         `;
 
+        const reportHtml = wrapWithDateWatermark(innerBody, issueDateDMY);
         lastGeneratedReportHtml = reportHtml;
         lastGeneratedReportTitle = `أرباحي-الخاصة-${reportTitleLabel}`;
         document.getElementById('pdfReportContentArea').innerHTML = reportHtml;
         document.getElementById('pdfReportModal').classList.remove('hidden');
+      }
+
+      // ==========================================
+      // FEATURE 2C: FULL BACKUP PDF EXPORT & RESTORE
+      // ==========================================
+      function buildFullBackupPayloadObject() {
+        const issueDateDMY = getIssueDateDMY();
+        const cleanDailyShares = {};
+        Object.keys(state.dailyShares || {}).forEach(dt => {
+          const entry = state.dailyShares[dt];
+          if (entry && typeof entry === 'object') {
+            cleanDailyShares[dt] = {
+              myShare: Number(entry.myShare) || 0,
+              ratio: typeof entry.ratio === 'number' ? entry.ratio : null,
+              updatedAt: entry.updatedAt || new Date().toISOString()
+            };
+          }
+        });
+
+        const fullData = {
+          theme: state.theme,
+          appearance: state.appearance,
+          profile: state.profile,
+          wholesalers: state.wholesalers,
+          devices: state.devices,
+          debtPayments: state.debtPayments,
+          dailyShares: cleanDailyShares,
+          expenses: state.expenses,
+          deposits: state.deposits
+        };
+
+        const token = encodeBackupPayloadBase64(fullData);
+
+        return {
+          app: 'aymen_mobile_repair_manager',
+          version: 2,
+          issueDateWatermark: issueDateDMY,
+          exportedAt: new Date().toISOString(),
+          data: {
+            ...fullData,
+            _restoreToken: token
+          },
+          _restoreToken: token
+        };
+      }
+
+      function generateRestorablePdfBlob(backupPayloadObj) {
+        const token = backupPayloadObj._restoreToken || encodeBackupPayloadBase64(backupPayloadObj.data || backupPayloadObj);
+        const issueDateDMY = backupPayloadObj.issueDateWatermark || getIssueDateDMY();
+        const devCount = (backupPayloadObj.data && Array.isArray(backupPayloadObj.data.devices)) ? backupPayloadObj.data.devices.length : 0;
+        const wCount = (backupPayloadObj.data && Array.isArray(backupPayloadObj.data.wholesalers)) ? backupPayloadObj.data.wholesalers.length : 0;
+
+        const streamContent = [
+          'BT',
+          '/F1 18 Tf',
+          '50 770 Td',
+          `(Aymen Mobile Repair Manager - Full Backup PDF) Tj`,
+          '/F1 13 Tf',
+          '0 -30 Td',
+          `(Watermark Issue Date: ${issueDateDMY}) Tj`,
+          '0 -24 Td',
+          `(Devices Count: ${devCount} | Wholesalers: ${wCount}) Tj`,
+          '0 -24 Td',
+          `(This PDF file contains a complete restorable system backup.) Tj`,
+          '0 -24 Td',
+          `(You can restore all data directly from this PDF in Settings.) Tj`,
+          'ET'
+        ].join('\n');
+
+        const pdfLines = [
+          '%PDF-1.4',
+          `% IssueDateWatermark: ${issueDateDMY}`,
+          `% AYMEN_BKP_V2:${token}:END_AYMEN_BKP`,
+          '1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj',
+          '2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj',
+          '3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj',
+          `4 0 obj << /Length ${streamContent.length} >> stream\n${streamContent}\nendstream endobj`,
+          '5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> endobj',
+          'xref',
+          '0 6',
+          '0000000000 65535 f ',
+          'trailer << /Size 6 /Root 1 0 R >>',
+          'startxref',
+          '0',
+          '%%EOF'
+        ].join('\n');
+
+        return new Blob([pdfLines], { type: 'application/pdf' });
       }
 
       // ==========================================
@@ -2537,8 +3246,58 @@
         reader.readAsDataURL(file);
       }
 
+      // Upload handler for Floating Square Animated Image (preserves GIF/WebP animation!)
+      function handleFloatingWidgetImageUpload(file) {
+        if (!file) return;
+        const isAnimatedFormat =
+          file.type === 'image/gif' ||
+          file.type === 'image/webp' ||
+          file.type === 'image/svg+xml' ||
+          /\.gif$|\.webp$|\.svg$/i.test(file.name || '');
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const rawDataUrl = e.target.result;
+          // Preserve animated GIF / WebP directly without flattening on canvas
+          if (isAnimatedFormat && rawDataUrl.length < 2800000) {
+            state.appearance.floatingWidgetImg = rawDataUrl;
+            state.appearance.enableFloatingWidget = true;
+            saveState();
+            applyAppearanceSettings();
+            playVipSound('cash');
+            showToast('تم تفعيل الصورة المتحركة في الأيقونة العائمة بنجاح ✨');
+            return;
+          }
+          // For static photos or very large files, resize cleanly
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const MAX_SIZE = 180;
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+              if (w > MAX_SIZE) { h = Math.round(h * (MAX_SIZE / w)); w = MAX_SIZE; }
+            } else {
+              if (h > MAX_SIZE) { w = Math.round(w * (MAX_SIZE / h)); h = MAX_SIZE; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            state.appearance.floatingWidgetImg = canvas.toDataURL('image/png', 0.9);
+            state.appearance.enableFloatingWidget = true;
+            saveState();
+            applyAppearanceSettings();
+            playVipSound('cash');
+            showToast('تم وضع الصورة في الأيقونة المربعة المتحركة بنجاح ✨');
+          };
+          img.src = rawDataUrl;
+        };
+        reader.readAsDataURL(file);
+      }
+
       // ==========================================
-      // SECTION 1: NEW DEVICE LOGIC & ADVANCED FILTER
+      // SECTION 1: NEW DEVICE & MULTI-PART WHOLESALER/PAYMENT LOGIC
       // ==========================================
       function setNeedsParts(val) {
         currentNeedsParts = Boolean(val);
@@ -2555,6 +3314,7 @@
           yesBtn.className = 'py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm border-2 transition flex items-center justify-center gap-1.5 bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100';
           container.classList.add('hidden');
         }
+        renderPerPartConfigRows();
         updateNetProfitPreview();
       }
 
@@ -2581,6 +3341,150 @@
         }
       }
 
+      function ensurePartConfigEntry(chipKey) {
+        if (!currentPartsConfigMap[chipKey]) {
+          const defaultW = document.getElementById('deviceWholesalerSelect').value || (state.wholesalers[0] ? state.wholesalers[0].id : '');
+          currentPartsConfigMap[chipKey] = {
+            chipKey,
+            cost: '',
+            wholesalerId: defaultW,
+            payType: 'cash',
+            debtSettled: false
+          };
+        }
+        return currentPartsConfigMap[chipKey];
+      }
+
+      function syncPerPartTotalsToForm() {
+        const selectedArr = Array.from(selectedPartsSet);
+        const perPartContainer = document.getElementById('perPartConfigContainer');
+        const singleFallbackBox = document.getElementById('singlePartFallbackBox');
+
+        if (!currentNeedsParts || selectedArr.length === 0) {
+          if (perPartContainer) perPartContainer.classList.add('hidden');
+          if (singleFallbackBox) singleFallbackBox.classList.remove('hidden');
+          updateNetProfitPreview();
+          return;
+        }
+
+        if (perPartContainer) perPartContainer.classList.remove('hidden');
+        if (singleFallbackBox) singleFallbackBox.classList.add('hidden');
+
+        let sumCost = 0;
+        selectedArr.forEach(key => {
+          const cfg = ensurePartConfigEntry(key);
+          sumCost += Number(cfg.cost) || 0;
+        });
+
+        document.getElementById('partCostInput').value = sumCost > 0 ? sumCost : '';
+        const countBadge = document.getElementById('perPartSelectedCountBadge');
+        const costBadge = document.getElementById('perPartTotalCostBadge');
+        if (countBadge) countBadge.textContent = `${selectedArr.length} قطع`;
+        if (costBadge) costBadge.textContent = formatCurrency(sumCost);
+
+        const firstCfg = ensurePartConfigEntry(selectedArr[0]);
+        if (firstCfg.wholesalerId) {
+          document.getElementById('deviceWholesalerSelect').value = firstCfg.wholesalerId;
+        }
+        setPayType(firstCfg.payType);
+        document.getElementById('debtSettledSelect').value = firstCfg.debtSettled ? 'paid' : 'unpaid';
+
+        updateNetProfitPreview();
+      }
+
+      function renderPerPartConfigRows() {
+        const listEl = document.getElementById('perPartConfigList');
+        if (!listEl) return;
+        const selectedArr = Array.from(selectedPartsSet);
+
+        if (!currentNeedsParts || selectedArr.length === 0) {
+          listEl.innerHTML = '';
+          syncPerPartTotalsToForm();
+          return;
+        }
+
+        const customLabelVal = document.getElementById('customPartName').value.trim();
+
+        listEl.innerHTML = selectedArr.map((chipKey, idx) => {
+          const cfg = ensurePartConfigEntry(chipKey);
+          const displayPartTitle = chipKey === 'غير ذلك'
+            ? (customLabelVal ? `${customLabelVal} (غير ذلك)` : 'قطعة إضافية (غير ذلك)')
+            : chipKey;
+
+          const isDebt = cfg.payType === 'debt';
+          const wOptions = [
+            `<option value="">-- اختر مركز الجملة لـ (${escapeHtml(displayPartTitle)}) --</option>`,
+            ...state.wholesalers.map(w => {
+              const sel = cfg.wholesalerId === w.id ? 'selected' : '';
+              return `<option value="${escapeHtml(w.id)}" ${sel}>${escapeHtml(w.name)}${w.phone ? ` (${escapeHtml(w.phone)})` : ''}</option>`;
+            })
+          ].join('');
+
+          return `
+            <div class="bg-white rounded-2xl border-2 ${isDebt ? 'border-rose-200' : 'border-emerald-200'} p-3.5 shadow-sm space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center">${idx + 1}</span>
+                  <span class="font-extrabold text-sm text-slate-900">القطعة: ${escapeHtml(displayPartTitle)}</span>
+                </div>
+                <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full ${isDebt ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">
+                  ${isDebt ? 'شراء بالدين (آجل)' : 'شراء نقد (كاش)'}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- 1. سعر هذه القطعة -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">سعر شراء (${escapeHtml(displayPartTitle)}) *</label>
+                  <div class="relative">
+                    <input type="number" data-part-cost-input="${escapeHtml(chipKey)}" value="${cfg.cost !== '' ? escapeHtml(cfg.cost) : ''}" min="0" step="any" placeholder="0" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 pl-10 font-extrabold text-slate-900 focus:bg-white focus:border-indigo-600 outline-none text-sm" />
+                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400">د.ع</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1 mt-1.5">
+                    <button type="button" data-part-quick-cost="${escapeHtml(chipKey)}" data-add-val="5000" class="text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 font-bold">+5,000</button>
+                    <button type="button" data-part-quick-cost="${escapeHtml(chipKey)}" data-add-val="10000" class="text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 font-bold">+10,000</button>
+                    <button type="button" data-part-quick-cost="${escapeHtml(chipKey)}" data-add-val="15000" class="text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 font-bold">+15,000</button>
+                    <button type="button" data-part-quick-cost="${escapeHtml(chipKey)}" data-add-val="25000" class="text-[10px] bg-slate-100 hover:bg-indigo-50 border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 font-bold">+25,000</button>
+                  </div>
+                </div>
+
+                <!-- 2. مركز الجملة الخاص بهذه القطعة -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">من يا مركز اشتريت (${escapeHtml(displayPartTitle)})؟ *</label>
+                  <select data-part-wholesaler-select="${escapeHtml(chipKey)}" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 font-bold focus:bg-white focus:border-indigo-600 outline-none text-xs sm:text-sm">
+                    ${wOptions}
+                  </select>
+                  <p class="text-[10px] text-slate-400 mt-1">يمكنك اختيار مركز مختلف لكل قطعة</p>
+                </div>
+
+                <!-- 3. نقد لو بالدين لهذه القطعة -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">طريقة الدفع لـ (${escapeHtml(displayPartTitle)}) *</label>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    <button type="button" data-part-paytype-btn="${escapeHtml(chipKey)}" data-paytype-val="cash" class="py-2 px-2 rounded-xl font-extrabold text-xs border-2 transition flex items-center justify-center ${!isDebt ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-700 border-slate-300 hover:bg-emerald-50'}">
+                      نقد (كاش)
+                    </button>
+                    <button type="button" data-part-paytype-btn="${escapeHtml(chipKey)}" data-paytype-val="debt" class="py-2 px-2 rounded-xl font-extrabold text-xs border-2 transition flex items-center justify-center ${isDebt ? 'bg-rose-600 text-white border-rose-600 shadow-sm' : 'bg-white text-slate-700 border-slate-300 hover:bg-rose-50'}">
+                      بالدين (آجل)
+                    </button>
+                  </div>
+                  ${isDebt ? `
+                    <div class="mt-2">
+                      <select data-part-debtsettled-select="${escapeHtml(chipKey)}" class="w-full rounded-xl border border-rose-300 bg-rose-50/50 px-2.5 py-1.5 text-xs font-bold text-rose-900 outline-none">
+                        <option value="unpaid" ${!cfg.debtSettled ? 'selected' : ''}>لم يتم التسديد (دين بذمتي)</option>
+                        <option value="paid" ${cfg.debtSettled ? 'selected' : ''}>تم التسديد ✓</option>
+                      </select>
+                    </div>
+                  ` : `<p class="text-[10px] text-emerald-700 font-semibold mt-1.5">مدفوعة نقداً لمركز الجملة</p>`}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        syncPerPartTotalsToForm();
+      }
+
       function renderPartChips() {
         document.querySelectorAll('#partsChipsContainer .part-chip').forEach(btn => {
           const partName = btn.getAttribute('data-part');
@@ -2592,6 +3496,7 @@
         } else {
           customWrap.classList.add('hidden');
         }
+        renderPerPartConfigRows();
       }
 
       function updateNetProfitPreview() {
@@ -2614,7 +3519,7 @@
           card.className = 'rounded-2xl border-2 border-emerald-200 bg-emerald-50/70 p-3.5 flex flex-col justify-center';
           display.className = 'money-blur-target text-xl sm:text-2xl font-extrabold text-emerald-700 mt-1';
           badge.className = 'text-[11px] px-2 py-0.5 rounded-md bg-emerald-200/70 text-emerald-900 font-semibold';
-          badge.textContent = currentNeedsParts ? `بعد خصم سعر القطعة (${formatCurrency(partCost)})` : 'صافي بالكامل (بدون قطع غيار)';
+          badge.textContent = currentNeedsParts ? `بعد خصم سعر القطع (${formatCurrency(partCost)})` : 'صافي بالكامل (بدون قطع غيار)';
         }
       }
 
@@ -2632,6 +3537,9 @@
           select.value = currentVal;
         } else if (state.wholesalers.length === 1) {
           select.value = state.wholesalers[0].id;
+        }
+        if (currentNeedsParts && selectedPartsSet.size > 0) {
+          renderPerPartConfigRows();
         }
       }
 
@@ -2659,6 +3567,7 @@
         document.getElementById('repairTotalPrice').value = '';
         document.getElementById('debtSettledSelect').value = 'unpaid';
         selectedPartsSet.clear();
+        currentPartsConfigMap = {};
         renderPartChips();
         setNeedsParts(false);
         setPayType('cash');
@@ -2668,23 +3577,35 @@
         updateNetProfitPreview();
       }
 
-      function updateDevicePaymentStatus(devId, newStatus) {
+      // Supports updating a specific part item on a multi-part device OR single-part device
+      function updateDevicePaymentStatus(devId, newStatus, partItemId) {
         const dev = state.devices.find(d => d.id === devId);
         if (!dev || !dev.needsParts) return;
 
-        if (newStatus === 'cash') {
-          dev.payType = 'cash';
-          dev.debtSettled = false;
-          showToast(`تم تعديل حالة القطعة (${dev.partName}) إلى: شراء نقد`);
-        } else if (newStatus === 'debt_paid') {
-          dev.payType = 'debt';
-          dev.debtSettled = true;
-          showToast(`تم تعديل حالة القطعة (${dev.partName}) إلى: تم التسديد ✓`);
-        } else if (newStatus === 'debt_unpaid') {
-          dev.payType = 'debt';
-          dev.debtSettled = false;
-          showToast(`تم إرجاع حالة القطعة (${dev.partName}) إلى: لم يتم التسديد (بالدين)`, 'info');
+        const items = getDevicePartsItems(dev);
+        let targetItem = partItemId
+          ? items.find(it => it.itemId === partItemId)
+          : items[0];
+        if (!targetItem && items.length > 0) targetItem = items[0];
+
+        if (targetItem) {
+          if (newStatus === 'cash') {
+            targetItem.payType = 'cash';
+            targetItem.debtSettled = false;
+            showToast(`تم تعديل حالة القطعة (${targetItem.partName}) إلى: شراء نقد`);
+          } else if (newStatus === 'debt_paid') {
+            targetItem.payType = 'debt';
+            targetItem.debtSettled = true;
+            showToast(`تم تعديل حالة القطعة (${targetItem.partName}) إلى: تم التسديد ✓`);
+          } else if (newStatus === 'debt_unpaid') {
+            targetItem.payType = 'debt';
+            targetItem.debtSettled = false;
+            showToast(`تم إرجاع حالة القطعة (${targetItem.partName}) إلى: لم يتم التسديد (بالدين)`, 'info');
+          }
+          dev.partsItems = items;
+          syncDeviceLegacySummaryFromParts(dev);
         }
+
         playVipSound('click');
         saveState();
         renderAll();
@@ -2737,7 +3658,6 @@
 
         const { filtered } = getFilteredDevicesInNewDeviceTab();
 
-        // Update summary bar in New Device log
         const totalRev = filtered.reduce((sum, d) => sum + (Number(d.repairPrice) || 0), 0);
         const totalNet = filtered.reduce((sum, d) => sum + (Number(d.netProfit) || 0), 0);
         document.getElementById('filteredDevicesCountText').textContent = `${filtered.length} أجهزة`;
@@ -2755,31 +3675,38 @@
         }
 
         container.innerHTML = filtered.map(d => {
-          const wObj = state.wholesalers.find(w => w.id === d.wholesalerId);
-          const wName = wObj ? wObj.name : 'مركز غير محدد';
           const netClass = d.netProfit >= 0 ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-rose-700 bg-rose-50 border-rose-200';
           let partBadge = `<span class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 font-semibold inline-block">بدون قطع غيار</span>`;
 
           if (d.needsParts) {
-            const currentStatusVal = d.payType === 'cash' ? 'cash' : (d.debtSettled ? 'debt_paid' : 'debt_unpaid');
-            const selectColorClass = currentStatusVal === 'debt_unpaid'
-              ? 'bg-rose-100 text-rose-800 border-rose-300'
-              : currentStatusVal === 'debt_paid'
-              ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-              : 'bg-indigo-100 text-indigo-800 border-indigo-300';
-
+            const partsItems = getDevicePartsItems(d);
             partBadge = `
-              <div class="flex flex-wrap items-center gap-1.5 text-xs bg-indigo-50/60 border border-indigo-100 px-2.5 py-1.5 rounded-xl">
-                <span class="font-bold text-indigo-950">القطعة: ${escapeHtml(d.partName)}</span>
-                <span class="text-slate-300">|</span>
-                <span class="money-blur-target font-bold text-rose-700">سعرها: ${formatCurrency(d.partCost)}</span>
-                <span class="text-slate-300">|</span>
-                <span class="text-slate-700 font-semibold">المركز: ${escapeHtml(wName)}</span>
-                <select data-change-device-pay="${d.id}" class="text-[11px] font-extrabold px-2 py-0.5 rounded-lg border outline-none cursor-pointer ${selectColorClass}">
-                  <option value="debt_unpaid" ${currentStatusVal === 'debt_unpaid' ? 'selected' : ''}>بالدين: لم يتم التسديد</option>
-                  <option value="debt_paid" ${currentStatusVal === 'debt_paid' ? 'selected' : ''}>بالدين: تم التسديد ✓</option>
-                  <option value="cash" ${currentStatusVal === 'cash' ? 'selected' : ''}>نقد (كاش)</option>
-                </select>
+              <div class="space-y-1.5">
+                ${partsItems.map(item => {
+                  const wObj = state.wholesalers.find(w => w.id === item.wholesalerId);
+                  const wName = wObj ? wObj.name : 'مركز غير محدد';
+                  const currentStatusVal = item.payType === 'cash' ? 'cash' : (item.debtSettled ? 'debt_paid' : 'debt_unpaid');
+                  const selectColorClass = currentStatusVal === 'debt_unpaid'
+                    ? 'bg-rose-100 text-rose-800 border-rose-300'
+                    : currentStatusVal === 'debt_paid'
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                    : 'bg-indigo-100 text-indigo-800 border-indigo-300';
+
+                  return `
+                    <div class="flex flex-wrap items-center gap-1.5 text-xs bg-indigo-50/60 border border-indigo-100 px-2.5 py-1.5 rounded-xl">
+                      <span class="font-bold text-indigo-950">القطعة: ${escapeHtml(item.partName)}</span>
+                      <span class="text-slate-300">|</span>
+                      <span class="money-blur-target font-bold text-rose-700">سعرها: ${formatCurrency(item.cost)}</span>
+                      <span class="text-slate-300">|</span>
+                      <span class="text-slate-700 font-semibold">المركز: ${escapeHtml(wName)}</span>
+                      <select data-change-device-pay="${escapeHtml(d.id)}" data-part-item-id="${escapeHtml(item.itemId)}" class="text-[11px] font-extrabold px-2 py-0.5 rounded-lg border outline-none cursor-pointer ${selectColorClass}">
+                        <option value="debt_unpaid" ${currentStatusVal === 'debt_unpaid' ? 'selected' : ''}>بالدين: لم يتم التسديد</option>
+                        <option value="debt_paid" ${currentStatusVal === 'debt_paid' ? 'selected' : ''}>بالدين: تم التسديد ✓</option>
+                        <option value="cash" ${currentStatusVal === 'cash' ? 'selected' : ''}>نقد (كاش)</option>
+                      </select>
+                    </div>
+                  `;
+                }).join('')}
               </div>
             `;
           }
@@ -2817,10 +3744,31 @@
       }
 
       // ==========================================
-      // SECTION 2: WHOLESALERS & DEBTS LOGIC
+      // SECTION 2: WHOLESALERS & DEBTS LOGIC (MULTI-PART AWARE)
       // ==========================================
       function getWholesalerStats(wholesalerId) {
-        const purchases = state.devices.filter(d => d.needsParts && d.wholesalerId === wholesalerId);
+        const purchases = [];
+        state.devices.forEach(d => {
+          if (!d.needsParts) return;
+          const items = getDevicePartsItems(d);
+          items.forEach(it => {
+            if (it.wholesalerId === wholesalerId) {
+              purchases.push({
+                id: d.id,
+                deviceId: d.id,
+                itemId: it.itemId,
+                model: d.model,
+                fault: d.fault,
+                date: d.date,
+                partName: it.partName,
+                partCost: Number(it.cost) || 0,
+                payType: it.payType,
+                debtSettled: Boolean(it.debtSettled)
+              });
+            }
+          });
+        });
+
         let totalPurchases = 0;
         let cashPurchases = 0;
         let unpaidDebtItemsTotal = 0;
@@ -2992,9 +3940,9 @@
 
             let quickToggleBtn = '';
             if (currentStatusVal === 'debt_unpaid') {
-              quickToggleBtn = `<button type="button" data-settle-item="${p.id}" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-xl transition shrink-0">تحويل إلى: تم التسديد ✓</button>`;
+              quickToggleBtn = `<button type="button" data-settle-item="${escapeHtml(p.deviceId)}" data-part-item-id="${escapeHtml(p.itemId)}" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1.5 rounded-xl transition shrink-0">تحويل إلى: تم التسديد ✓</button>`;
             } else if (currentStatusVal === 'debt_paid') {
-              quickToggleBtn = `<button type="button" data-unsettle-item="${p.id}" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold px-2.5 py-1.5 rounded-xl transition shrink-0">تراجع: لم يتم التسديد</button>`;
+              quickToggleBtn = `<button type="button" data-unsettle-item="${escapeHtml(p.deviceId)}" data-part-item-id="${escapeHtml(p.itemId)}" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold px-2.5 py-1.5 rounded-xl transition shrink-0">تراجع: لم يتم التسديد</button>`;
             }
 
             return `
@@ -3009,7 +3957,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/70">
-                  <select data-wholesaler-item-status="${p.id}" class="text-xs font-extrabold px-2.5 py-1.5 rounded-xl border outline-none cursor-pointer ${selectStyle}">
+                  <select data-wholesaler-item-status="${escapeHtml(p.deviceId)}" data-part-item-id="${escapeHtml(p.itemId)}" class="text-xs font-extrabold px-2.5 py-1.5 rounded-xl border outline-none cursor-pointer ${selectStyle}">
                     <option value="debt_unpaid" ${currentStatusVal === 'debt_unpaid' ? 'selected' : ''}>بالدين: لم يتم التسديد</option>
                     <option value="debt_paid" ${currentStatusVal === 'debt_paid' ? 'selected' : ''}>بالدين: تم التسديد ✓</option>
                     <option value="cash" ${currentStatusVal === 'cash' ? 'selected' : ''}>شراء نقد (مدفوع)</option>
@@ -3361,6 +4309,73 @@
       }
 
       // ==========================================
+      // DRAGGABLE FLOATING SQUARE WIDGET ENGINE
+      // ==========================================
+      function initFloatingWidgetDrag() {
+        const widget = document.getElementById('floatingSquareWidget');
+        if (!widget) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let initialLeft = 16;
+        let initialTop = 86;
+
+        function onStart(clientX, clientY) {
+          isDragging = true;
+          widget.classList.add('dragging');
+          const rect = widget.getBoundingClientRect();
+          initialLeft = rect.left;
+          initialTop = rect.top;
+          startX = clientX;
+          startY = clientY;
+        }
+
+        function onMove(clientX, clientY) {
+          if (!isDragging) return;
+          const dx = clientX - startX;
+          const dy = clientY - startY;
+          const size = widget.offsetWidth || 68;
+          const maxX = Math.max(6, window.innerWidth - size - 6);
+          const maxY = Math.max(6, window.innerHeight - size - 6);
+          const nextX = Math.min(Math.max(6, Math.round(initialLeft + dx)), maxX);
+          const nextY = Math.min(Math.max(6, Math.round(initialTop + dy)), maxY);
+
+          widget.style.left = `${nextX}px`;
+          widget.style.top = `${nextY}px`;
+          state.appearance.floatingWidgetPos = { x: nextX, y: nextY };
+        }
+
+        function onEnd() {
+          if (!isDragging) return;
+          isDragging = false;
+          widget.classList.remove('dragging');
+          saveState();
+        }
+
+        widget.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          onStart(e.clientX, e.clientY);
+        });
+        window.addEventListener('mousemove', (e) => {
+          if (isDragging) onMove(e.clientX, e.clientY);
+        });
+        window.addEventListener('mouseup', onEnd);
+
+        widget.addEventListener('touchstart', (e) => {
+          if (!e.touches || !e.touches[0]) return;
+          onStart(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+          if (!isDragging || !e.touches || !e.touches[0]) return;
+          onMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+
+        window.addEventListener('touchend', onEnd);
+      }
+
+      // ==========================================
       // MASTER RENDER
       // ==========================================
       function renderAll() {
@@ -3387,6 +4402,8 @@
         document.getElementById('profitStartDate').value = today;
         document.getElementById('profitEndDate').value = today;
         document.getElementById('expenseDateInput').value = today;
+
+        initFloatingWidgetDrag();
 
         // Navigation buttons
         document.querySelectorAll('[data-tab]').forEach(btn => {
@@ -3522,6 +4539,73 @@
           showToast(`تم تغيير خط الموقع إلى (${e.target.value})`);
         });
 
+        // 7. Floating Square Animated Widget Controls
+        document.getElementById('toggleFloatingWidgetBtn').addEventListener('click', () => {
+          toggleAppearanceFlag('enableFloatingWidget', 'الأيقونة المربعة المتحركة الحرة 🖼️');
+        });
+
+        document.getElementById('floatingWidgetFileInput').addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) handleFloatingWidgetImageUpload(file);
+          e.target.value = '';
+        });
+
+        document.getElementById('floatingWidgetSizeSelect').addEventListener('change', (e) => {
+          state.appearance.floatingWidgetSize = Number(e.target.value) || 68;
+          state.appearance.enableFloatingWidget = true;
+          saveState();
+          applyAppearanceSettings();
+          playVipSound('click');
+          showToast('تم تغيير حجم الأيقونة المربعة المتحركة');
+        });
+
+        document.getElementById('resetFloatingWidgetPosBtn').addEventListener('click', () => {
+          state.appearance.floatingWidgetPos = { x: 16, y: 86 };
+          state.appearance.enableFloatingWidget = true;
+          saveState();
+          applyAppearanceSettings();
+          playVipSound('click');
+          showToast('تم إرجاع الأيقونة المربعة إلى مكانها الافتراضي بالشاشة');
+        });
+
+        document.querySelectorAll('[data-widget-preset]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const preset = btn.getAttribute('data-widget-preset');
+            state.appearance.floatingWidgetPreset = preset;
+            state.appearance.floatingWidgetImg = '';
+            state.appearance.enableFloatingWidget = true;
+            saveState();
+            applyAppearanceSettings();
+            playVipSound('cash');
+            showToast('تم تفعيل الشكل المتحرك في الأيقونة المربعة — يمكنك سحبها لأي مكان!');
+          });
+        });
+
+        // 8. Animated LED Border Marquee Controls
+        document.getElementById('toggleLedBorderBtn').addEventListener('click', () => {
+          toggleAppearanceFlag('enableLedBorder', 'النشرة الضوئية المتحركة حول الواجهة 🌈');
+        });
+
+        document.querySelectorAll('.led-mode-chip').forEach(chip => {
+          chip.addEventListener('click', () => {
+            const mode = chip.getAttribute('data-led-mode');
+            state.appearance.ledBorderMode = mode;
+            state.appearance.enableLedBorder = true;
+            saveState();
+            applyAppearanceSettings();
+            playVipSound('click');
+            showToast('تم تشغيل النشرة الضوئية المتحركة باللون المختار 🌈');
+          });
+        });
+
+        document.getElementById('ledBorderCustomColorInput').addEventListener('input', (e) => {
+          state.appearance.ledBorderCustomColor = e.target.value;
+          state.appearance.ledBorderMode = 'custom';
+          state.appearance.enableLedBorder = true;
+          saveState();
+          applyAppearanceSettings();
+        });
+
         document.getElementById('enableAllVipBtn').addEventListener('click', () => {
           state.appearance = {
             ...state.appearance,
@@ -3534,13 +4618,15 @@
             enableSoundEffects: true,
             enableConfetti: true,
             enableRankBadge: true,
-            enableCustomFont: true
+            enableCustomFont: true,
+            enableFloatingWidget: true,
+            enableLedBorder: true
           };
           saveState();
           applyAppearanceSettings();
           playVipSound('cash');
           launchVipConfetti();
-          showToast('تم تشغيل جميع فيكات الجمالية والـ VIP بنجاح! ✨');
+          showToast('تم تشغيل جميع فيكات الجمالية والنشرة الضوئية والأيقونة المتحركة! ✨');
         });
 
         document.getElementById('disableAllVipBtn').addEventListener('click', () => {
@@ -3555,11 +4641,23 @@
             enableSoundEffects: false,
             enableConfetti: false,
             enableRankBadge: false,
-            enableCustomFont: false
+            enableCustomFont: false,
+            enableFloatingWidget: false,
+            enableLedBorder: false
           };
           saveState();
           applyAppearanceSettings();
           showToast('تم إطفاء جميع الإضافات الجمالية والعودة للمظهر الافتراضي', 'info');
+        });
+
+        // About the Website Toggle Button
+        document.getElementById('toggleAboutWebsiteBtn').addEventListener('click', () => {
+          const box = document.getElementById('aboutWebsiteContentBox');
+          const txt = document.getElementById('toggleAboutWebsiteBtnText');
+          const isHidden = box.classList.contains('hidden');
+          box.classList.toggle('hidden', !isHidden);
+          txt.textContent = isHidden ? 'إخفاء شرح الموقع ▲' : 'عرض الشرح الكامل للموقع 📖';
+          playVipSound('click');
         });
 
         // Unapproved days alert delegation (in both Profits and Pocket sections)
@@ -3631,7 +4729,6 @@
           }
         });
 
-        // Personal Profits PDF Button
         document.getElementById('exportMyPersonalProfitsPdfBtn').addEventListener('click', () => {
           if (profitFilterMode === 'single') {
             const dStr = document.getElementById('profitSingleDate').value || getTodayISO();
@@ -3649,7 +4746,9 @@
 
         document.getElementById('downloadReportHtmlBtn').addEventListener('click', () => {
           if (!lastGeneratedReportHtml) return;
-          const fullDoc = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير صيانة - ${escapeHtml(lastGeneratedReportTitle)}</title><style>@page{size:A4;margin:14mm;}body{font-family:'Cairo','Tajawal',sans-serif;margin:20px;background:#fff;color:#0f172a;}</style></head><body onload="window.print()">${lastGeneratedReportHtml}</body></html>`;
+          const bkp = buildFullBackupPayloadObject();
+          const tokenComment = `<!-- AYMEN_BKP_V2:${bkp._restoreToken}:END_AYMEN_BKP -->`;
+          const fullDoc = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تقرير صيانة - ${escapeHtml(lastGeneratedReportTitle)}</title><style>@page{size:A4;margin:14mm;}body{font-family:'Cairo','Tajawal',sans-serif;margin:20px;background:#fff;color:#0f172a;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.report-watermark-wrap{position:relative;overflow:hidden;background:#fff;}.report-watermark-layer{position:absolute;inset:0;pointer-events:none;z-index:0;display:grid;grid-template-columns:repeat(2,1fr);gap:54px 28px;align-content:space-around;justify-items:center;padding:32px 16px;opacity:0.075;}.report-watermark-stamp{transform:rotate(-22deg);font-size:20px;font-weight:800;color:#1e3a8a;white-space:nowrap;border:2px solid #1e3a8a;padding:4px 14px;border-radius:10px;}.report-foreground-content{position:relative;z-index:1;}</style></head><body onload="window.print()">${lastGeneratedReportHtml}${tokenComment}</body></html>`;
           const blob = new Blob([fullDoc], { type: 'text/html;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -3659,7 +4758,7 @@
           a.click();
           a.remove();
           setTimeout(() => URL.revokeObjectURL(url), 1500);
-          showToast('تم تنزيل ملف التقرير الجاهز للطباعة');
+          showToast('تم تنزيل ملف التقرير مع الخلفية المائية لتاريخ الإصدار');
         });
 
         document.getElementById('closePdfReportModalBtn').addEventListener('click', () => {
@@ -3685,13 +4784,74 @@
               selectedPartsSet.delete(p);
             } else {
               selectedPartsSet.add(p);
+              ensurePartConfigEntry(p);
             }
             playVipSound('click');
             renderPartChips();
           });
         });
 
-        // Cash vs Debt buttons
+        document.getElementById('customPartName').addEventListener('input', () => {
+          if (selectedPartsSet.has('غير ذلك')) {
+            renderPerPartConfigRows();
+          }
+        });
+
+        // Per-Part Configuration Delegation (Cost, Quick Cost, Wholesaler, Cash/Debt, Debt Settled)
+        const perPartListEl = document.getElementById('perPartConfigList');
+        if (perPartListEl) {
+          perPartListEl.addEventListener('input', (e) => {
+            const costInp = e.target.closest('[data-part-cost-input]');
+            if (costInp) {
+              const key = costInp.getAttribute('data-part-cost-input');
+              const cfg = ensurePartConfigEntry(key);
+              cfg.cost = costInp.value;
+              syncPerPartTotalsToForm();
+            }
+          });
+
+          perPartListEl.addEventListener('change', (e) => {
+            const wSel = e.target.closest('[data-part-wholesaler-select]');
+            if (wSel) {
+              const key = wSel.getAttribute('data-part-wholesaler-select');
+              const cfg = ensurePartConfigEntry(key);
+              cfg.wholesalerId = wSel.value;
+              syncPerPartTotalsToForm();
+              return;
+            }
+            const dsSel = e.target.closest('[data-part-debtsettled-select]');
+            if (dsSel) {
+              const key = dsSel.getAttribute('data-part-debtsettled-select');
+              const cfg = ensurePartConfigEntry(key);
+              cfg.debtSettled = dsSel.value === 'paid';
+              syncPerPartTotalsToForm();
+            }
+          });
+
+          perPartListEl.addEventListener('click', (e) => {
+            const quickCostBtn = e.target.closest('[data-part-quick-cost]');
+            if (quickCostBtn) {
+              const key = quickCostBtn.getAttribute('data-part-quick-cost');
+              const addVal = Number(quickCostBtn.getAttribute('data-add-val')) || 0;
+              const cfg = ensurePartConfigEntry(key);
+              cfg.cost = (Number(cfg.cost) || 0) + addVal;
+              renderPerPartConfigRows();
+              return;
+            }
+            const payBtn = e.target.closest('[data-part-paytype-btn]');
+            if (payBtn) {
+              const key = payBtn.getAttribute('data-part-paytype-btn');
+              const val = payBtn.getAttribute('data-paytype-val');
+              const cfg = ensurePartConfigEntry(key);
+              cfg.payType = val === 'debt' ? 'debt' : 'cash';
+              if (cfg.payType === 'cash') cfg.debtSettled = false;
+              playVipSound('click');
+              renderPerPartConfigRows();
+            }
+          });
+        }
+
+        // Legacy Cash vs Debt buttons
         document.getElementById('payTypeCashBtn').addEventListener('click', () => setPayType('cash'));
         document.getElementById('payTypeDebtBtn').addEventListener('click', () => setPayType('debt'));
 
@@ -3719,8 +4879,17 @@
         document.getElementById('repairTotalPrice').addEventListener('input', updateNetProfitPreview);
 
         // Inline Add Wholesaler inside New Device Form
-        document.getElementById('toggleInlineWholesalerBtn').addEventListener('click', () => {
-          document.getElementById('inlineAddWholesalerBox').classList.toggle('hidden');
+        ['toggleInlineWholesalerBtn', 'toggleInlineWholesalerBtnPerPart'].forEach(btnId => {
+          const btnEl = document.getElementById(btnId);
+          if (btnEl) {
+            btnEl.addEventListener('click', () => {
+              const box = document.getElementById('inlineAddWholesalerBox');
+              box.classList.toggle('hidden');
+              if (!box.classList.contains('hidden')) {
+                document.getElementById('inlineWholesalerName').focus();
+              }
+            });
+          }
         });
 
         document.getElementById('saveInlineWholesalerBtn').addEventListener('click', () => {
@@ -3741,15 +4910,20 @@
           saveState();
           populateWholesalerSelect();
           document.getElementById('deviceWholesalerSelect').value = newW.id;
+          selectedPartsSet.forEach(k => {
+            const cfg = ensurePartConfigEntry(k);
+            if (!cfg.wholesalerId) cfg.wholesalerId = newW.id;
+          });
+          renderPerPartConfigRows();
           nameInput.value = '';
           phoneInput.value = '';
           document.getElementById('inlineAddWholesalerBox').classList.add('hidden');
           renderWholesalersSection();
           playVipSound('cash');
-          showToast(`تمت إضافة "${name}" واختياره تلقائياً`);
+          showToast(`تمت إضافة "${name}" لقائمة مراكز الجملة`);
         });
 
-        // Save New Device Form Submit
+        // Save New Device Form Submit (Supports Per-Part Wholesaler & Cash/Debt!)
         document.getElementById('newDeviceForm').addEventListener('submit', (e) => {
           e.preventDefault();
           const model = document.getElementById('deviceModel').value.trim();
@@ -3762,26 +4936,51 @@
             return;
           }
 
+          let partsItems = [];
           let partName = '';
           let partCost = 0;
           let wholesalerId = '';
+          let payType = 'cash';
           let isDebtSettled = false;
 
           if (currentNeedsParts) {
-            partName = getSelectedPartsDescription();
-            if (!partName) {
-              showToast('يرجى اختيار القطعة المشتراة أو كتابة اسمها', 'error');
+            const selectedArr = Array.from(selectedPartsSet);
+            if (selectedArr.length === 0) {
+              showToast('يرجى اختيار القطعة المشتراة (مثل شاشة، ظهر، بطارية...)', 'error');
               return;
             }
-            partCost = Number(document.getElementById('partCostInput').value) || 0;
-            wholesalerId = document.getElementById('deviceWholesalerSelect').value;
-            if (!wholesalerId) {
-              showToast('يرجى اختيار مركز الجملة الذي اشتريت منه القطعة', 'error');
+            const customNameVal = document.getElementById('customPartName').value.trim();
+            if (selectedPartsSet.has('غير ذلك') && !customNameVal) {
+              showToast('يرجى كتابة اسم القطعة الإضافية في خانة (غير ذلك)', 'error');
               return;
             }
-            if (currentPayType === 'debt') {
-              isDebtSettled = document.getElementById('debtSettledSelect').value === 'paid';
+
+            for (let i = 0; i < selectedArr.length; i++) {
+              const key = selectedArr[i];
+              const cfg = ensurePartConfigEntry(key);
+              const resolvedName = key === 'غير ذلك' ? customNameVal : key;
+              if (!cfg.wholesalerId) {
+                showToast(`يرجى اختيار مركز الجملة للقطعة (${resolvedName})`, 'error');
+                return;
+              }
+              partsItems.push({
+                itemId: `pi_${Date.now()}_${i}`,
+                chipKey: key,
+                partName: resolvedName,
+                cost: Number(cfg.cost) || 0,
+                wholesalerId: cfg.wholesalerId,
+                payType: cfg.payType === 'debt' ? 'debt' : 'cash',
+                debtSettled: cfg.payType === 'debt' ? Boolean(cfg.debtSettled) : false
+              });
             }
+
+            partName = partsItems.map(it => it.partName).join(' + ');
+            partCost = partsItems.reduce((sum, it) => sum + (Number(it.cost) || 0), 0);
+            wholesalerId = partsItems[0].wholesalerId;
+            const hasUnpaidDebt = partsItems.some(it => it.payType === 'debt' && !it.debtSettled);
+            const hasAnyDebt = partsItems.some(it => it.payType === 'debt');
+            payType = hasAnyDebt ? 'debt' : 'cash';
+            isDebtSettled = hasAnyDebt ? !hasUnpaidDebt : false;
           }
 
           const netProfit = repairPrice - (currentNeedsParts ? partCost : 0);
@@ -3797,17 +4996,18 @@
                 fault,
                 date,
                 needsParts: currentNeedsParts,
+                partsItems: currentNeedsParts ? partsItems : [],
                 partName,
                 partCost: currentNeedsParts ? partCost : 0,
-                payType: currentNeedsParts ? currentPayType : 'cash',
+                payType: currentNeedsParts ? payType : 'cash',
                 wholesalerId: currentNeedsParts ? wholesalerId : '',
-                debtSettled: currentNeedsParts && currentPayType === 'debt' ? isDebtSettled : false,
+                debtSettled: currentNeedsParts && payType === 'debt' ? isDebtSettled : false,
                 repairPrice,
                 netProfit
               };
               syncDailyShareForDate(oldDate);
               syncDailyShareForDate(date);
-              showToast('تم حفظ تعديلات الجهاز بنجاح');
+              showToast('تم حفظ تعديلات الجهاز والقطع بنجاح');
             }
           } else {
             state.devices.push({
@@ -3816,16 +5016,17 @@
               fault,
               date,
               needsParts: currentNeedsParts,
+              partsItems: currentNeedsParts ? partsItems : [],
               partName,
               partCost: currentNeedsParts ? partCost : 0,
-              payType: currentNeedsParts ? currentPayType : 'cash',
+              payType: currentNeedsParts ? payType : 'cash',
               wholesalerId: currentNeedsParts ? wholesalerId : '',
-              debtSettled: currentNeedsParts && currentPayType === 'debt' ? isDebtSettled : false,
+              debtSettled: currentNeedsParts && payType === 'debt' ? isDebtSettled : false,
               repairPrice,
               netProfit
             });
             syncDailyShareForDate(date);
-            showToast('تم حفظ الجهاز وحساب الربح الصافي بنجاح');
+            showToast('تم حفظ الجهاز وربط كل قطعة بمركزها بنجاح');
           }
 
           playVipSound('cash');
@@ -3848,12 +5049,13 @@
           renderDevicesList();
         });
 
-        // Change payment status directly from Devices List dropdown
+        // Change payment status directly from Devices List dropdown (per part item)
         document.getElementById('devicesListContainer').addEventListener('change', (e) => {
           const selectEl = e.target.closest('[data-change-device-pay]');
           if (selectEl) {
             const devId = selectEl.getAttribute('data-change-device-pay');
-            updateDevicePaymentStatus(devId, selectEl.value);
+            const partItemId = selectEl.getAttribute('data-part-item-id');
+            updateDevicePaymentStatus(devId, selectEl.value, partItemId);
           }
         });
 
@@ -3871,27 +5073,34 @@
             document.getElementById('deviceDate').value = dev.date;
             document.getElementById('repairTotalPrice').value = dev.repairPrice;
 
-            setNeedsParts(dev.needsParts);
             selectedPartsSet.clear();
-            if (dev.needsParts && dev.partName) {
+            currentPartsConfigMap = {};
+            setNeedsParts(dev.needsParts);
+
+            if (dev.needsParts) {
               const standard = ['شاشة', 'بطارية', 'شاصي', 'ظهر', 'بورد شحن'];
-              const partsArr = dev.partName.split(' + ').map(s => s.trim()).filter(Boolean);
-              const customParts = [];
-              partsArr.forEach(p => {
-                if (standard.includes(p)) {
-                  selectedPartsSet.add(p);
-                } else {
-                  selectedPartsSet.add('غير ذلك');
-                  customParts.push(p);
+              const items = getDevicePartsItems(dev);
+              const customNames = [];
+
+              items.forEach(it => {
+                const pName = (it.partName || '').trim();
+                let key = standard.includes(pName) ? pName : 'غير ذلك';
+                if (key === 'غير ذلك' && pName) {
+                  customNames.push(pName);
                 }
+                selectedPartsSet.add(key);
+                currentPartsConfigMap[key] = {
+                  chipKey: key,
+                  cost: it.cost,
+                  wholesalerId: it.wholesalerId || '',
+                  payType: it.payType === 'debt' ? 'debt' : 'cash',
+                  debtSettled: Boolean(it.debtSettled)
+                };
               });
-              document.getElementById('customPartName').value = customParts.join(' + ');
-              renderPartChips();
-              document.getElementById('partCostInput').value = dev.partCost;
-              setPayType(dev.payType);
-              document.getElementById('debtSettledSelect').value = dev.debtSettled ? 'paid' : 'unpaid';
+
+              document.getElementById('customPartName').value = customNames.join(' + ');
               populateWholesalerSelect();
-              document.getElementById('deviceWholesalerSelect').value = dev.wholesalerId || '';
+              renderPartChips();
             }
 
             document.getElementById('saveDeviceBtnText').textContent = 'حفظ التعديلات على الجهاز';
@@ -4042,12 +5251,13 @@
           showToast('تم تسجيل دفعة تسديد الدين بنجاح');
         });
 
-        // Change status via dropdown inside wholesaler detail panel
+        // Change status via dropdown inside wholesaler detail panel (per part item)
         document.getElementById('wholesalerDetailPanel').addEventListener('change', (e) => {
           const statusSelect = e.target.closest('[data-wholesaler-item-status]');
           if (statusSelect) {
             const devId = statusSelect.getAttribute('data-wholesaler-item-status');
-            updateDevicePaymentStatus(devId, statusSelect.value);
+            const partItemId = statusSelect.getAttribute('data-part-item-id');
+            updateDevicePaymentStatus(devId, statusSelect.value, partItemId);
           }
         });
 
@@ -4056,14 +5266,16 @@
           const settleBtn = e.target.closest('[data-settle-item]');
           if (settleBtn) {
             const devId = settleBtn.getAttribute('data-settle-item');
-            updateDevicePaymentStatus(devId, 'debt_paid');
+            const partItemId = settleBtn.getAttribute('data-part-item-id');
+            updateDevicePaymentStatus(devId, 'debt_paid', partItemId);
             return;
           }
 
           const unsettleBtn = e.target.closest('[data-unsettle-item]');
           if (unsettleBtn) {
             const devId = unsettleBtn.getAttribute('data-unsettle-item');
-            updateDevicePaymentStatus(devId, 'debt_unpaid');
+            const partItemId = unsettleBtn.getAttribute('data-part-item-id');
+            updateDevicePaymentStatus(devId, 'debt_unpaid', partItemId);
             return;
           }
 
@@ -4357,24 +5569,9 @@
           showToast('تم حفظ بيانات الملف الشخصي بنجاح');
         });
 
-        // Export Backup JSON File (EXCLUDES dailyShares / personal profit share & ratios)
+        // 1) Export Full Backup as JSON (Restores 100% of data on any domain + includes issueDateWatermark)
         document.getElementById('exportBackupFileBtn').addEventListener('click', () => {
-          const sanitizedData = {
-            theme: state.theme,
-            appearance: state.appearance,
-            profile: state.profile,
-            wholesalers: state.wholesalers,
-            devices: state.devices,
-            debtPayments: state.debtPayments,
-            expenses: state.expenses,
-            deposits: state.deposits
-          };
-          const backupPayload = {
-            app: 'aymen_mobile_repair_manager',
-            version: 1,
-            exportedAt: new Date().toISOString(),
-            data: sanitizedData
-          };
+          const backupPayload = buildFullBackupPayloadObject();
           const jsonStr = JSON.stringify(backupPayload, null, 2);
           const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
           const url = URL.createObjectURL(blob);
@@ -4386,44 +5583,63 @@
           a.remove();
           setTimeout(() => URL.revokeObjectURL(url), 1500);
           playVipSound('cash');
-          showToast('تم تنزيل ملف النسخة الاحتياطية (بدون تفاصيل الحصص والنسب)');
+          showToast(`تم تنزيل ملف النسخة الاحتياطية الكاملة (JSON) — تاريخ الإصدار: ${backupPayload.issueDateWatermark}`);
         });
 
-        // Import Backup JSON File (Preserves existing dailyShares if omitted from exported JSON)
+        // 2) Export Full Backup as PDF (Downloads restorable .PDF file + opens printable PDF report with Date Watermark)
+        document.getElementById('exportFullBackupPdfBtn').addEventListener('click', () => {
+          const backupPayload = buildFullBackupPayloadObject();
+          const pdfBlob = generateRestorablePdfBlob(backupPayload);
+          const url = URL.createObjectURL(pdfBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `نسخة-احتياطية-كاملة-صيانة-الموبايلات-${getTodayISO()}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+          const allDevs = state.devices.slice().sort((x, y) => (y.date + y.id).localeCompare(x.date + x.id));
+          const allShopExps = state.expenses.filter(ex => ex.deductFrom === 'shop');
+          openPdfReportModal(allDevs, `نسخة احتياطية شاملة (${backupPayload.issueDateWatermark})`, allShopExps);
+          playVipSound('cash');
+          showToast(`تم تنزيل ملف النسخة الاحتياطية (PDF) القابل للاسترجاع وفتح معاينة الطباعة!`);
+        });
+
+        // 3) Import / Restore Backup from either JSON or PDF (or HTML)
         document.getElementById('importBackupFileInput').addEventListener('change', (e) => {
           const file = e.target.files && e.target.files[0];
           if (!file) return;
           const reader = new FileReader();
           reader.onload = function (ev) {
             try {
-              const parsed = JSON.parse(ev.target.result);
-              const incoming = parsed.data ? parsed.data : parsed;
+              const rawText = String(ev.target.result || '');
+              let incoming = null;
+
+              // Check if file (e.g. .pdf or .html) contains embedded AYMEN_BKP_V2 token
+              const tokenMatch = rawText.match(/AYMEN_BKP_V2:([A-Za-z0-9+/=]+):END_AYMEN_BKP/);
+              if (tokenMatch && tokenMatch[1]) {
+                incoming = decodeBackupPayloadBase64(tokenMatch[1]);
+              } else {
+                const parsed = JSON.parse(rawText);
+                incoming = parsed.data ? parsed.data : parsed;
+                if (parsed._restoreToken && !incoming._restoreToken) {
+                  incoming._restoreToken = parsed._restoreToken;
+                }
+              }
+
               if (!incoming || typeof incoming !== 'object') {
                 throw new Error('Invalid format');
               }
-              state = {
-                theme: incoming.theme === 'dark' ? 'dark' : state.theme,
-                appearance: {
-                  ...defaultAppearance,
-                  ...(state.appearance || {}),
-                  ...(incoming.appearance && typeof incoming.appearance === 'object' ? incoming.appearance : {})
-                },
-                profile: incoming.profile || { name: 'أيمن', avatar: '' },
-                wholesalers: Array.isArray(incoming.wholesalers) ? incoming.wholesalers : [],
-                devices: Array.isArray(incoming.devices) ? incoming.devices : [],
-                debtPayments: Array.isArray(incoming.debtPayments) ? incoming.debtPayments : [],
-                dailyShares: (incoming.dailyShares && typeof incoming.dailyShares === 'object')
-                  ? incoming.dailyShares
-                  : (state.dailyShares || {}),
-                expenses: Array.isArray(incoming.expenses) ? incoming.expenses : [],
-                deposits: Array.isArray(incoming.deposits) ? incoming.deposits : []
-              };
+
+              state = normalizeLoadedStateObject(incoming, state);
               saveState();
               renderAll();
               playVipSound('cash');
-              showToast('تم استرجاع النسخة الاحتياطية وجميع البيانات بنجاح!');
+              launchVipConfetti();
+              showToast(`تم استرجاع النسخة الاحتياطية وكافة البيانات (${state.devices.length} أجهزة) بنجاح!`);
             } catch (err) {
-              showToast('خطأ: الملف المختار ليس ملف نسخة احتياطية صالح', 'error');
+              showToast('خطأ: الملف المختار ليس ملف نسخة احتياطية صالح (يرجى اختيار ملف JSON أو PDF للنسخة الاحتياطية)', 'error');
             }
           };
           reader.readAsText(file);
